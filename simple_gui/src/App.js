@@ -1,5 +1,3 @@
-import  { useState, useEffect } from "react";
-import * as ROSLIB from "roslib";
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,6 +8,7 @@ import ImageShower from "./components/ImageShower";
 import TaskCompleted from "./components/TaskCompleted";
 import Game from "./components/TrisBoard";
 import RobotSetup from "./components/RobotSetup";
+import TaskSelector from './components/TaskSelector';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -62,8 +61,10 @@ function Navigation() {
 
   return (
     <nav>
+      <NavLink to="/" style={navLinkStyles}>Select</NavLink> |{" "}
       <NavLink to="/executing" style={navLinkStyles}>Robot</NavLink> |{" "}
-      <NavLink to="/game" style={navLinkStyles}>Tris</NavLink>
+      <NavLink to="/game" style={navLinkStyles}>Tris</NavLink> |{" "}
+      <NavLink to="/list" style={navLinkStyles}>Tasks</NavLink> |{" "}
     </nav>
   );
 }
@@ -90,6 +91,7 @@ export default function All(){
             }
           />
           <Route path="/game" element={<Game />} />
+          <Route path="/list" element={<TaskSelector list={[]} setNewList={() => {}}/>} />
         </Routes>
       </BrowserRouter>
     </div>

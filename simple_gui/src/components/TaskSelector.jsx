@@ -1,0 +1,76 @@
+import { useState, useEffect } from "react";
+import '../styleList.css'
+
+function TaskSelector({ list, setNewList }) {
+  
+  const [dropZone, setDropZone] = useState(0);
+  const [mouse, setMouse] = useState([0, 0]);
+  const [dragged, setDragged] = useState(null);
+  const [items, setItems] = useState([
+    "Press red button",
+    "Remove batteries",
+    "Check batteries",
+    "Slide the thing",
+    "Press blue button",
+    "Order Cable"
+  ]);
+
+  useEffect(() => {
+	// Handle the mouse movemnt
+    const handler = (e) => {
+      setMouse([e.x, e.y]);
+    };
+    document.addEventListener("mousemove", handler);
+    return () => document.removeEventListener("mousemove", handler);
+  }, []);
+
+  useEffect(() => {
+    if (dragged !== null) {
+		const elements = Array.from(document.getElementsByClassName("drop-zone"));
+		const positions = elements.map((e) => e.getBoundingClientRect().top);
+		const absDifferences = positions.map((v) => Math.abs(v - mouse[1]));
+		let result = absDifferences.indexOf(Math.min(...absDifferences));
+		if (result > dragged) result += 1;
+		setDropZone(result);
+    }
+  }, [dragged, mouse]);
+
+  return (
+	<>
+	{dragged !== null && (
+         <div className="floating list-item"
+        style={{
+          left: `${mouse[0]}px`,
+          top: `${mouse[1]}px`,
+        }}
+        >{items[dragged]}</div>
+      )}
+    <div className='list'>
+		<div
+			className={`list-item drop-zone ${dragged === null || dropZone !== 0 ? "hidden" : ""}`}
+		/>
+      {items.map((value, index) => (
+        <>
+		{dragged !== index && (
+			<>
+			<div
+				key={value}
+				className="list-item"
+				onMouseDown={(e) => {
+				e.preventDefault();
+				setDragged(index);
+				}}
+			>
+				{value}
+			</div>
+			<div className={`list-item drop-zone ${dragged === null || dropZone !== index + 1 ? "hidden" : ""}`} /> {/* drop zone after every item */}
+			</>
+		)}
+		</>
+      ))}
+    </div>
+	</>
+  );
+}
+
+export default TaskSelector
