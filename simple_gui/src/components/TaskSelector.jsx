@@ -35,6 +35,20 @@ function TaskSelector({ list, setNewList }) {
     }
   }, [dragged, mouse]);
 
+  useEffect(() => {
+    const handler = (e) => {
+      if (dragged !== null) {
+        e.preventDefault();
+        setDragged(null);
+
+        setItems((items) => reorderList([...items], dragged, dropZone));
+      }
+    };
+
+    document.addEventListener("mouseup", handler);
+    return () => document.removeEventListener("mouseup", handler);
+  });
+
   return (
 	<>
 	{dragged !== null && (
@@ -72,5 +86,44 @@ function TaskSelector({ list, setNewList }) {
 	</>
   );
 }
+
+
+
+
+const reorderList = (l, start, end) => {
+  if (start < end) return _reorderListForward([...l], start, end);
+  else if (start > end) return _reorderListBackward([...l], start, end);
+
+  return l; // if start == end
+};
+
+
+
+
+const _reorderListForward = (l, start, end) => {
+  const temp = l[start];
+  for (let i=start; i<end; i++) {
+    l[i] = l[i+1];
+  }
+  l[end - 1] = temp;
+  return l;
+};
+
+
+
+const _reorderListBackward = (l, start, end) => {
+  const temp = l[start];
+  for (let i = start; i > end; i--) {
+    l[i] = l[i - 1];
+  }
+  l[end] = temp;
+  return l;
+};
+
+
+
+
+
+
 
 export default TaskSelector
