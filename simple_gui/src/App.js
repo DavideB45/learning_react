@@ -29,7 +29,7 @@ function ViewButton( { lable, onClick} ){
 function ManyViews({ imageUrl, taskStat, setViewSrv }) {
 
   function sendNumber(num){
-    setViewSrv.callService({a: num, b:0}, (result) => {})
+    setViewSrv.callService({data: num}, (result) => {})
     toast.info("Changing to camera " + ["Front", "Above", "Side"][num])
   }
 
@@ -91,7 +91,7 @@ export default function All(){
             }
           />
           <Route path="/game" element={<Game />} />
-          <Route path="/list" element={<TaskSelector list={[]} setNewList={() => {}}/>} />
+          <Route path="/list" element={<TaskSelector ros={ros}/>} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -56,7 +56,7 @@ export function useRos() {
 		var setViewService = new ROSLIB.Service({
 			ros: ros,
 			name: '/set_view',
-			serviceType: 'example_interfaces/AddTwoInts'
+			serviceType: 'simple_server/srv/SetInt'
 		})
 		setSetVewSrv(setViewService)
 

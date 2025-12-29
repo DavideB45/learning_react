@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
+import * as ROSLIB from "roslib";
+import { ToastContainer, toast } from "react-toastify";
+
 import '../styleList.css'
 
-function TaskSelector({ list, setNewList }) {
+
+function SendButton( { lable, onClick} ){
+  return (
+    <button onClick={onClick}> {lable} </button>
+  )
+}
+
+function TaskSelector({ ros }) {
   
   const [dropZone, setDropZone] = useState(0);
   const [mouse, setMouse] = useState([0, 0]);
@@ -14,6 +24,18 @@ function TaskSelector({ list, setNewList }) {
     "Press blue button",
     "Order Cable"
   ]);
+
+  const [sendList, setSendList] = useState(null);
+
+  useEffect( () => {
+      var setListSrv = new ROSLIB.Service({
+        ros: ros,
+        name: '/set_list',
+        serviceType: 'simple_server/srv/SetList'
+      })
+      setSendList(setListSrv)
+    }
+  )
 
   useEffect(() => {
 	// Handle the mouse movemnt
@@ -51,37 +73,38 @@ function TaskSelector({ list, setNewList }) {
 
   return (
 	<>
-	{dragged !== null && (
-         <div className="floating list-item"
-        style={{
-          left: `${mouse[0]}px`,
-          top: `${mouse[1]}px`,
-        }}
-        >{items[dragged]}</div>
-      )}
+	  {dragged !== null && (
+      <div className="floating list-item" style={{left: `${mouse[0]}px`, top: `${mouse[1]}px`,}}>
+        {items[dragged]}
+      </div>
+    )}
     <div className='list'>
-		<div
-			className={`list-item drop-zone ${dragged === null || dropZone !== 0 ? "hidden" : ""}`}
-		/>
-      {items.map((value, index) => (
-        <>
-		{dragged !== index && (
-			<>
-			<div
-				key={value}
-				className="list-item"
-				onMouseDown={(e) => {
-				e.preventDefault();
-				setDragged(index);
-				}}
-			>
-				{value}
-			</div>
-			<div className={`list-item drop-zone ${dragged === null || dropZone !== index + 1 ? "hidden" : ""}`} /> {/* drop zone after every item */}
-			</>
-		)}
-		</>
-      ))}
+        <div className={`list-item drop-zone ${dragged === null || dropZone !== 0 ? "hidden" : ""}`}/>
+        {items.map((value, index) => (
+          <>
+          {dragged !== index && (
+            <>
+              <div key={value} className="list-item" onMouseDown={(e) => { e.preventDefault(); setDragged(index); }}>
+                {value}
+              </div>
+              <div className={`list-item drop-zone ${dragged === null || dropZone !== index + 1 ? "hidden" : ""}`} /> {/* drop zone after every item */}
+            </>
+          )}
+          </>
+        ))}
+    </div>
+    <div>
+      <ToastContainer />
+      {<SendButton onClick={
+        () => {
+          sendList.callService({data: items}, (result) => {
+            if (result.success)
+              toast.warn(result.message)
+            else
+              toast.error(result.message)
+          })
+        }
+      } lable={"SendList"}/>}
     </div>
 	</>
   );
