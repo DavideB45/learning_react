@@ -1,0 +1,4 @@
+{
+  "robotType": "franka",
+  "algorithm": "navigation"
+}
