@@ -9,6 +9,7 @@ import TaskCompleted from "./components/TaskCompleted";
 import Game from "./components/TrisBoard";
 import RobotSetup from "./components/RobotSetup";
 import TaskSelector from './components/TaskSelector';
+import APlot from './components/APlot';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -36,16 +37,23 @@ function ManyViews({ imageUrl, taskStat, setViewSrv }) {
   return (
     <div>
       <ToastContainer />
-      <div>
-        <h2>Camera stream</h2>
-        <ImageShower imageSrc={imageUrl} />
-        <h3>Task Status</h3>
-        <TaskCompleted state={taskStat} />
-      </div>
-      <div>
-        <ViewButton onClick={() => sendNumber(0)} lable={"Front"}/>
-        <ViewButton onClick={() => sendNumber(1)} lable={"Above"}/>
-        <ViewButton onClick={() => sendNumber(2)} lable={"Side "}/>
+      <div className='container'>
+        <div className='left'>
+          <div>
+            <h2>Camera stream</h2>
+            <ImageShower imageSrc={imageUrl} />
+            <h3>Task Status</h3>
+            <TaskCompleted state={taskStat} />
+          </div>
+          <div>
+            <ViewButton onClick={() => sendNumber(0)} lable={"Front"}/>
+            <ViewButton onClick={() => sendNumber(1)} lable={"Above"}/>
+            <ViewButton onClick={() => sendNumber(2)} lable={"Side "}/>
+          </div>
+        </div>
+        <div className='right'>
+          <APlot />
+        </div>
       </div>
     </div>
   )

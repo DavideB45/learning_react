@@ -28,13 +28,15 @@ function TaskSelector({ ros }) {
   const [sendList, setSendList] = useState(null);
 
   useEffect( () => {
+      if (!ros) return;
+
       var setListSrv = new ROSLIB.Service({
         ros: ros,
         name: '/set_list',
         serviceType: 'simple_server/srv/SetList'
       })
       setSendList(setListSrv)
-    }
+    }, [ros]
   )
 
   useEffect(() => {

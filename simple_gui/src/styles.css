@@ -97,3 +97,18 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+
+.container {
+  display: flex;
+  align-items: center;      /* or flex-start */
+  gap: 2rem;                /* space between things */
+}
+
+.left {
+  width: 512px;
+}
+
+.right {
+  width: 400px;
+}
