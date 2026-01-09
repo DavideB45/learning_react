@@ -1,19 +1,19 @@
+import { Container, Image } from '@mantine/core';
+
 function ImageShower({ imageSrc }) {
   if (!imageSrc) return <div>No image</div>;
 
   return (
-    <div className="image-container">
-      <img
+    <Container>
+      <Image
         src={imageSrc}
         alt="ROS stream"
-        style={{ 
-          width:'512px',
-          height:'512px',
-          imageRendering: "pixelated"
-         }}
+        width={512}
+        height={512}
+        style={{ imageRendering: "pixelated", borderRadius: "8px" }}
       />
-    </div>
+    </Container>
   );
 }
 
-export default ImageShower
+export default ImageShower;

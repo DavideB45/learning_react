@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Container, Card, Stack, Select, Button, Title, Loader, Group, Alert} from "@mantine/core";
 
 const API_URL = "http://localhost:3001/api/config";
 
@@ -46,51 +47,87 @@ function RobotSetup() {
   const canExecute = robotType && algorithm;
 
   if (isLoading) {
-    return <div style={{ padding: "2rem" }}>Loading configuration...</div>;
+    return (
+      <Container size="md" py="xl">
+        <Group justify="center" py="xl">
+          <Loader size="lg" />
+        </Group>
+      </Container>
+    );
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Robot Setup</h1>
+    <Container size="md" py="xl">
+      <Card shadow="lg" padding="xl" radius="md" withBorder>
+        <Card.Section withBorder inheritPadding py="md">
+          <Title order={1} size="h2">
+            Robot Setup
+          </Title>
+        </Card.Section>
 
-      {/* Robot selection */}
-      <div style={{ marginBottom: "1rem" }}>
-        <label>
-          Robot type:
-          <br />
-          <select
-            value={robotType}
-            onChange={(e) => setRobotType(e.target.value)}
-          >
-            <option value="">-- select a robot --</option>
-            <option value="ur5">UR5</option>
-            <option value="franka">Franka</option>
-          </select>
-        </label>
-      </div>
+        <Card.Section inheritPadding py="xl">
+          <Stack gap="lg">
+            {/* Robot type selection */}
+            <Select
+              label="Robot Type"
+              placeholder="Select a robot"
+              searchable
+              clearable
+              value={robotType}
+              onChange={(value) => setRobotType(value || "")}
+              data={[
+                { value: "ur5", label: "UR5" },
+                { value: "franka", label: "Franka" },
+              ]}
+              size="md"
+            />
 
-      {/* Algorithm selection */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label>
-          Algorithm:
-          <br />
-          <select
-            value={algorithm}
-            onChange={(e) => setAlgorithm(e.target.value)}
-          >
-            <option value="">-- select an algorithm --</option>
-            <option value="pick_place">Pick & Place</option>
-            <option value="navigation">Navigation</option>
-            <option value="inspection">Inspection</option>
-          </select>
-        </label>
-      </div>
+            {/* Algorithm selection */}
+            <Select
+              label="Algorithm"
+              placeholder="Select an algorithm"
+              searchable
+              clearable
+              value={algorithm}
+              onChange={(value) => setAlgorithm(value || "")}
+              data={[
+                { value: "pick_place", label: "Pick & Place" },
+                { value: "navigation", label: "Navigation" },
+                { value: "inspection", label: "Inspection" },
+              ]}
+              size="md"
+            />
 
-      {/* Execute button */}
-      <Link to="/executing">
-        <button disabled={!canExecute}>Execute</button>
-      </Link>
-    </div>
+            {/* Info alert */}
+            {robotType && algorithm && (
+              <Alert
+                title="Configuration Ready"
+                color="green"
+                icon={null}
+              >
+                Robot: <strong>{robotType.toUpperCase()}</strong> | Algorithm: <strong>{algorithm.replace(/_/g, " ")}</strong>
+              </Alert>
+            )}
+
+            {/* Execute button */}
+            <Group justify="flex-start" pt="lg">
+              <Link to="/executing" style={{ textDecoration: "none" }}>
+                <Button
+                  disabled={!canExecute}
+                  variant="gradient"
+                  gradient={{ from: 'green', to: 'teal', deg: 90 }}
+                  size="lg"
+                  radius="md"
+                  fw={600}
+                >
+                  Execute
+                </Button>
+              </Link>
+            </Group>
+          </Stack>
+        </Card.Section>
+      </Card>
+    </Container>
   );
 }
 
