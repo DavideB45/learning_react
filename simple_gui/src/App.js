@@ -23,7 +23,7 @@ function ViewButton({ lable, onClick }) {
   );
 }
 
-function ManyViews({ imageUrl, taskStat, setViewSrv }) {
+function ManyViews({ imageUrl, taskStat, setViewSrv, ros }) {
 
   function sendNumber(num) {
     setViewSrv.callService({ data: num }, (result) => { })
@@ -84,7 +84,7 @@ function ManyViews({ imageUrl, taskStat, setViewSrv }) {
             </Card.Section>
             <Card.Section inheritPadding py="md">
               <APlot />
-              <AnotherPlot />
+              <AnotherPlot ros={ ros }/>
             </Card.Section>
           </Card>
         </Grid.Col>
@@ -156,6 +156,7 @@ export default function All() {
                   imageUrl={imageUrl}
                   taskStat={taskStat}
                   setViewSrv={setViewSrv}
+                  ros={ros}
                 />
               }
             />

@@ -13,10 +13,10 @@ function APlot() {
     chartRef.current = new Chart(canvasRef.current, {
       type: "bar",
       data: {
-        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        labels: ["Press red button", "Press blue button", "Remove batteries", "Check batteries", "Order Cable", "Slide"],
         datasets: [
           {
-            label: "# of Votes",
+            label: "# of Successes",
             data: [12, 19, 3, 5, count, 3],
             borderWidth: 1,
           },

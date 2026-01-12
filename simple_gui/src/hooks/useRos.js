@@ -68,5 +68,5 @@ export function useRos() {
 		};
 	}, []);
 
-  return { ros, connected, imageUrl, setViewSrv, taskStat};
+  return { ros, connected, imageUrl, setViewSrv, taskStat, };
 }
