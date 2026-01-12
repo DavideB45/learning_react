@@ -50,7 +50,10 @@ function AnotherPlot( { ros } ) {
 	})
 
 	// cleanup on unmount
-	return () => chartRef.current.destroy();
+	return () => {
+		chartRef.current.destroy();
+		tempListener.unsubscribe();
+	}
   }, []);
 
   function updateChart(number) {
@@ -70,7 +73,7 @@ function AnotherPlot( { ros } ) {
 	chartRef.current.data.labels.push(lastidx + 1)
 	chartRef.current.update();
 
-	if (len + 1 > 100){
+	if (len + 1 > 50){
 		// Improve ogic to remove unwanted misses
 		chartRef.current.data.datasets[0].data.splice(0, 1);
 		chartRef.current.data.datasets[1].data.splice(0, 1);
