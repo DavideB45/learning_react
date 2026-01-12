@@ -12,6 +12,7 @@ import Game from "./components/TrisBoard";
 import RobotSetup from "./components/RobotSetup";
 import TaskSelector from './components/TaskSelector';
 import APlot from './components/APlot';
+import AnotherPlot from './components/AnotherPlot';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -83,6 +84,7 @@ function ManyViews({ imageUrl, taskStat, setViewSrv }) {
             </Card.Section>
             <Card.Section inheritPadding py="md">
               <APlot />
+              <AnotherPlot />
             </Card.Section>
           </Card>
         </Grid.Col>

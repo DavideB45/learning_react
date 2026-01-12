@@ -13,8 +13,9 @@ export function useRos() {
 
 
   useEffect(() => {
+		// url: 'ws://192.168.64.3:9090'
 		var ros = new ROSLIB.Ros({
-			url: 'ws://192.168.64.3:9090'
+			url: 'ws://localhost:9090'
 		});
 		ros.on('connection', function() {
 			console.log('Connected to websocket server.');
