@@ -13,6 +13,7 @@ import RobotSetup from "./components/RobotSetup";
 import TaskSelector from './components/TaskSelector';
 import APlot from './components/APlot';
 import AnotherPlot from './components/AnotherPlot';
+import ThemeToggle from './components/ThemeToggle';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -144,7 +145,12 @@ export default function All() {
         }}
       >
         <AppShell.Header withBorder>
-          <Navigation />
+          <Container size="xl" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+            <Group gap='lg'>
+              <Navigation />
+              <ThemeToggle />
+            </Group>
+          </Container>
         </AppShell.Header>
         <AppShell.Main>
           <Routes>

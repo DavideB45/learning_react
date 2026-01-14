@@ -1,4 +1,4 @@
 {
   "robotType": "ur5",
-  "algorithm": "pick_place"
+  "algorithm": "navigation"
 }
