@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 export function useRos() {
   const [ros, setRos] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
   const [setViewSrv, setSetVewSrv] = useState(null);
   const [taskStat, setTaskStat] = useState(false);
+  const [paramClient, setParamClient] = useState(null)
 
 
 
@@ -30,15 +30,13 @@ export function useRos() {
 		});
 		setRos(ros)
 
-		// Update image
-		var imageListener = new ROSLIB.Topic({ 
-			ros: ros,
-			name: '/image',
-			messageType: 'sensor_msgs/CompressedImage'
-		});
-		imageListener.subscribe(function(message) {      
-			setImageUrl(`data:image/jpeg;base64,${message.data}`)
-		});
+		var paramCl = new ROSLIB.Service({
+				ros: ros,
+				name: '/config_node/get_parameters',
+				serviceType: 'rcl_interfaces/srv/GetParameters'
+			}
+		)
+		setParamClient(paramCl)
 
 		// Show task success
 		var taskListener = new ROSLIB.Topic({
@@ -62,11 +60,10 @@ export function useRos() {
 		setSetVewSrv(setViewService)
 
 		return () => {
-			imageListener.unsubscribe();
 			taskListener.unsubscribe();
 			ros.close();
 		};
 	}, []);
 
-  return { ros, connected, imageUrl, setViewSrv, taskStat, };
+  return { ros, connected, paramClient, setViewSrv, taskStat, };
 }

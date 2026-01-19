@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./toast.css";
 import { AppShell, Container, Card, Grid, Button, Group, Stack} from '@mantine/core';
@@ -14,80 +14,45 @@ import TaskSelector from './components/TaskSelector';
 import APlot from './components/APlot';
 import AnotherPlot from './components/AnotherPlot';
 import ThemeToggle from './components/ThemeToggle';
+import ViewButtons from './components/ViewButtons';
+import TitleTile from './components/TitleTile';
+import MagicMaker from './components/MagicMaker';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
 
-function ViewButton({ lable, onClick }) {
-  return (
-    <Button onClick={onClick} variant="light" size="sm">{lable}</Button>
-  );
-}
+function ManyViews({ paramClient, taskStat, setViewSrv, ros }) {
 
-function ManyViews({ imageUrl, taskStat, setViewSrv, ros }) {
-
-  function sendNumber(num) {
-    setViewSrv.callService({ data: num }, (result) => { })
-    toast.info("Changing to camera " + ["Front", "Above", "Side"][num])
-  }
+  // load configuration from a json/xml
 
   return (
     <Container size="xl" py="xl">
       <ToastContainer />
       <Grid gutter="lg">
-        {/* Left Column */}
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <Stack gap="lg">
-            {/* Camera Stream Card */}
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section withBorder inheritPadding py="md">
-                <Group justify="space-between" align="center">
-                  <h2 style={{ margin: 0 }}>Camera Stream</h2>
-                </Group>
-              </Card.Section>
-              <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center' }}>
-                <ImageShower imageSrc={imageUrl} />
-              </Card.Section>
-            </Card>
-
-            {/* Camera Selection Buttons */}
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section withBorder inheritPadding py="md">
-                <h3 style={{ margin: 0 }}>Camera View</h3>
-              </Card.Section>
-              <Card.Section inheritPadding py="md">
-                <Group grow>
-                  <ViewButton onClick={() => sendNumber(0)} lable={"Front"} />
-                  <ViewButton onClick={() => sendNumber(1)} lable={"Above"} />
-                  <ViewButton onClick={() => sendNumber(2)} lable={"Side"} />
-                </Group>
-              </Card.Section>
-            </Card>
-
-            {/* Task Status Card */}
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Card.Section withBorder inheritPadding py="md">
-                <h3 style={{ margin: 0 }}>Task Status</h3>
-              </Card.Section>
-              <Card.Section inheritPadding py="md">
-                <TaskCompleted state={taskStat} />
-              </Card.Section>
-            </Card>
-
-          </Stack>
-        </Grid.Col>
+        <MagicMaker
+          componentsList={[
+            {title:"Camera Stream",
+              things:[]
+            }
+          ]}
+          paramClient={paramClient}
+          taskStat={taskStat}
+          setViewSrv={setViewSrv}
+          ros={ros}
+        />
 
         {/* Right Column */}
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
-            <Card.Section withBorder inheritPadding py="md">
-              <h3 style={{ margin: 0 }}>Analytics</h3>
-            </Card.Section>
-            <Card.Section inheritPadding py="md">
-              <APlot />
-              <AnotherPlot ros={ ros }/>
-            </Card.Section>
-          </Card>
+          <Stack gap="lg">
+            <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
+              <TitleTile text={'Analytics'} />
+              <Card.Section inheritPadding py="md">
+                <APlot />
+                <TitleTile text={'LINO BANFI'} />
+                <AnotherPlot ros={ ros }/>
+              </Card.Section>
+            </Card>
+          </Stack>
         </Grid.Col>
       </Grid>
     </Container>
@@ -132,7 +97,7 @@ function Navigation() {
 
 export default function All() {
 
-  const { ros, connected, imageUrl, setViewSrv, taskStat } = useRos()
+  const { ros, connected, paramClient, setViewSrv, taskStat } = useRos()
 
   return (
     <BrowserRouter>
@@ -159,7 +124,7 @@ export default function All() {
               path="/executing"
               element={
                 <ManyViews
-                  imageUrl={imageUrl}
+                  paramClient={paramClient}
                   taskStat={taskStat}
                   setViewSrv={setViewSrv}
                   ros={ros}

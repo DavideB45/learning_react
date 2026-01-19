@@ -114,16 +114,12 @@ function TaskSelector({ ros }) {
 
 
 
-
 const reorderList = (l, start, end) => {
   if (start < end) return _reorderListForward([...l], start, end);
   else if (start > end) return _reorderListBackward([...l], start, end);
 
   return l; // if start == end
 };
-
-
-
 
 const _reorderListForward = (l, start, end) => {
   const temp = l[start];
@@ -134,8 +130,6 @@ const _reorderListForward = (l, start, end) => {
   return l;
 };
 
-
-
 const _reorderListBackward = (l, start, end) => {
   const temp = l[start];
   for (let i = start; i > end; i--) {
@@ -144,11 +138,5 @@ const _reorderListBackward = (l, start, end) => {
   l[end] = temp;
   return l;
 };
-
-
-
-
-
-
 
 export default TaskSelector
