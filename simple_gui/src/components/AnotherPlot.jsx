@@ -54,7 +54,7 @@ function AnotherPlot( { ros } ) {
 		chartRef.current.destroy();
 		tempListener.unsubscribe();
 	}
-  }, []);
+  }, [ros]);
 
   function updateChart(number) {
 	if (!chartRef.current) return;
