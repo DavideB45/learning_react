@@ -1,20 +1,22 @@
 import { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { toast } from "react-toastify";
+import { useLocation } from 'react-router-dom';
+
 
 function TaskCompleted({ ros, paramClient }) {
   const [isCompleted, setIsCompleted] = useState(false)
-
+  const location = useLocation();
   const color = isCompleted ? "green" : "red";
   const text = isCompleted ? "Task completed" : "Task not completed";
 
   useEffect(() => {
+    if (!paramClient) return;
+
     const request = {
       names: ['task.type', 'task.name']
     };
-    
     let taskListener = null;
-    if (!paramClient) return;
     paramClient.callService(request, function (result) {
       taskListener = new ROSLIB.Topic({ 
         ros: ros,
@@ -23,10 +25,11 @@ function TaskCompleted({ ros, paramClient }) {
       });
 
       taskListener.subscribe(function (message) {
-          setIsCompleted(message.data)
-          if (message.data)
-            toast.success("Task completed", { icon: "✅" , toastId: 1},
-          );
+        if (location.pathname !== "/executing") return;
+        setIsCompleted(message.data)
+        if (message.data)
+          toast.success("Task completed", { icon: "✅" , toastId: 1},
+        );
       })
     });
     return () => {
