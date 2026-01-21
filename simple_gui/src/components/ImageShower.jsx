@@ -11,25 +11,19 @@ function ImageShower({ ros, paramClient }) {
       names: ['stream.type', 'stream.name']
     };
     
-    // Declare imageListener outside the callback so it's accessible in cleanup
     let imageListener = null;
-    if (paramClient) {
-      // Print some information
-      paramClient.callService(request, function (result) {
-        console.log("this")
-        console.log(result.values[1].string_value)
-        // Update image
-        imageListener = new ROSLIB.Topic({ 
-          ros: ros,
-          name: result.values[1].string_value,
-          messageType: result.values[0].string_value
-        });
-        
-        imageListener.subscribe(function(message) {      
-          setImageUrl(`data:image/jpeg;base64,${message.data}`);
-        });
+    if (!paramClient) return;
+    paramClient.callService(request, function (result) {
+      imageListener = new ROSLIB.Topic({ 
+        ros: ros,
+        name: result.values[1].string_value,
+        messageType: result.values[0].string_value
       });
-    }
+      
+      imageListener.subscribe(function(message) {      
+        setImageUrl(`data:image/jpeg;base64,${message.data}`);
+      });
+    });
     return () => {
       if (imageListener) {
         imageListener.unsubscribe();
