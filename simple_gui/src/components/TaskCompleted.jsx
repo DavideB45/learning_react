@@ -1,8 +1,40 @@
-function TaskCompleted({ state }) {
-  const isCompleted = state === true || state === "completed";
+import { useState, useEffect } from "react";
+import * as ROSLIB from "roslib";
+import { toast } from "react-toastify";
+
+function TaskCompleted({ ros, paramClient }) {
+  const [isCompleted, setIsCompleted] = useState(false)
 
   const color = isCompleted ? "green" : "red";
   const text = isCompleted ? "Task completed" : "Task not completed";
+
+  useEffect(() => {
+    const request = {
+      names: ['task.type', 'task.name']
+    };
+    
+    let taskListener = null;
+    if (!paramClient) return;
+    paramClient.callService(request, function (result) {
+      taskListener = new ROSLIB.Topic({ 
+        ros: ros,
+        name: result.values[1].string_value,
+        messageType: result.values[0].string_value
+      });
+
+      taskListener.subscribe(function (message) {
+          setIsCompleted(message.data)
+          if (message.data)
+            toast.success("Task completed", { icon: "✅" , toastId: 1},
+          );
+      })
+    });
+    return () => {
+      if (taskListener) {
+        taskListener.unsubscribe();
+      }
+    };
+  }, [paramClient]);
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

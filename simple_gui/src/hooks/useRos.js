@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 
-import { toast } from "react-toastify";
-
 export function useRos() {
   const [ros, setRos] = useState(null);
   const [connected, setConnected] = useState(false);
   const [setViewSrv, setSetVewSrv] = useState(null);
-  const [taskStat, setTaskStat] = useState(false);
   const [paramClient, setParamClient] = useState(null)
 
 
@@ -38,19 +35,6 @@ export function useRos() {
 		)
 		setParamClient(paramCl)
 
-		// Show task success
-		var taskListener = new ROSLIB.Topic({
-			ros: ros,
-			name: 'taskCompleted',
-			messageType: 'std_msgs/Bool'
-		})
-		taskListener.subscribe(function(message) {
-			setTaskStat(message.data);
-			if (message.data)
-				toast.success("Task completed", { icon: "✅" , toastId: 1},
-			);
-		})
-
 		// Service to change camera
 		var setViewService = new ROSLIB.Service({
 			ros: ros,
@@ -60,10 +44,9 @@ export function useRos() {
 		setSetVewSrv(setViewService)
 
 		return () => {
-			taskListener.unsubscribe();
 			ros.close();
 		};
 	}, []);
 
-  return { ros, connected, paramClient, setViewSrv, taskStat, };
+  return { ros, connected, paramClient, setViewSrv};
 }
