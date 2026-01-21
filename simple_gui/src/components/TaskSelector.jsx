@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { ToastContainer, toast } from "react-toastify";
 
+import { Button } from "@mantine/core";
+import { Link } from "react-router-dom";
+
 import '../styleList.css'
 
 
@@ -14,6 +17,7 @@ function SendButton( { lable, onClick} ){
 function TaskSelector({ ros }) {
   
   const [dropZone, setDropZone] = useState(0);
+  const [isReady, setIsReady] = useState(false);
   const [mouse, setMouse] = useState([0, 0]);
   const [dragged, setDragged] = useState(null);
   const [items, setItems] = useState([
@@ -97,16 +101,22 @@ function TaskSelector({ ros }) {
     </div>
     <div>
       <ToastContainer />
-      {<SendButton onClick={
+      <SendButton onClick={
         () => {
           sendList.callService({data: items}, (result) => {
+            setIsReady(result.success)
             if (result.success)
-              toast.warn(result.message)
+              toast.success(result.message)
             else
               toast.error(result.message)
           })
         }
-      } lable={"SendList"}/>}
+      } lable={"SendList"}/>
+      <Link to='/executing'>
+      <Button disabled={!isReady}>
+        Start
+      </Button>
+      </Link>
     </div>
 	</>
   );

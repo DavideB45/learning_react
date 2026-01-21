@@ -111,7 +111,7 @@ function RobotSetup() {
 
             {/* Execute button */}
             <Group justify="flex-start" pt="lg">
-              <Link to="/executing" style={{ textDecoration: "none" }}>
+              <Link to="/list" style={{ textDecoration: "none" }}>
                 <Button
                   disabled={!canExecute}
                   variant="gradient"
@@ -120,7 +120,7 @@ function RobotSetup() {
                   radius="md"
                   fw={600}
                 >
-                  Execute
+                  Select
                 </Button>
               </Link>
             </Group>
