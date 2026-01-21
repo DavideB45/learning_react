@@ -16,12 +16,11 @@ import AnotherPlot from './components/AnotherPlot';
 import ThemeToggle from './components/ThemeToggle';
 import ViewButtons from './components/ViewButtons';
 import TitleTile from './components/TitleTile';
-import MagicMaker from './components/MagicMaker';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
 
-function ManyViews({ paramClient, taskStat, setViewSrv, ros }) {
+function ManyViews({ paramClient, setViewSrv, ros }) {
 
   // load configuration from a json/xml
 
@@ -29,17 +28,39 @@ function ManyViews({ paramClient, taskStat, setViewSrv, ros }) {
     <Container size="xl" py="xl">
       <ToastContainer />
       <Grid gutter="lg">
-        <MagicMaker
-          componentsList={[
-            {title:"Camera Stream",
-              things:[]
-            }
-          ]}
-          paramClient={paramClient}
-          taskStat={taskStat}
-          setViewSrv={setViewSrv}
-          ros={ros}
-        />
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Stack gap="lg">
+
+          {/* Camera */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <TitleTile text={'Camera Stream'} />
+            <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center' }}>
+            <ImageShower paramClient={paramClient} ros={ros} />
+            </Card.Section>
+          </Card>
+
+          {/* Camera Selection Buttons */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card.Section withBorder inheritPadding py="md">
+            <h3 style={{ margin: 0 }}>Camera View</h3>
+            </Card.Section>
+            <Card.Section inheritPadding py="md">
+            <ViewButtons setViewSrv={setViewSrv} />
+            </Card.Section>
+          </Card>
+
+          {/* Task Status Card */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card.Section withBorder inheritPadding py="md">
+            <h3 style={{ margin: 0 }}>Task Status</h3>
+            </Card.Section>
+            <Card.Section inheritPadding py="md">
+            <TaskCompleted ros={ros} paramClient={paramClient} />
+            </Card.Section>
+          </Card>
+
+          </Stack>
+        </Grid.Col>
 
         {/* Right Column */}
         <Grid.Col span={{ base: 12, md: 6 }}>
@@ -64,15 +85,15 @@ function Navigation() {
   const navigate = useNavigate();
 
   // Hide nav on the picker page
-  if (location.pathname === "/") {
+  if (location.pathname === "/" || location.pathname === "/list") {
     return null;
   }
 
   const links = [
     { label: 'Select', path: '/', color: 'violet' },
+    { label: 'Tasks', path: '/list', color: 'violet' },
     { label: 'Robot', path: '/executing', color: 'cyan' },
     { label: 'Tris', path: '/game', color: 'cyan' },
-    { label: 'Tasks', path: '/list', color: 'cyan' }
   ];
 
   return (
@@ -125,7 +146,6 @@ export default function All() {
               element={
                 <ManyViews
                   paramClient={paramClient}
-                  taskStat={taskStat}
                   setViewSrv={setViewSrv}
                   ros={ros}
                 />
