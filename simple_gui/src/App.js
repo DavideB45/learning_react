@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 // Components import
 import ImageShower from "./components/ImageShower";
 import TaskCompleted from "./components/TaskCompleted";
+import BoardStatus from "./components/BoardStatus";
 import Game from "./components/TrisBoard";
 import RobotSetup from "./components/RobotSetup";
 import TaskSelector from './components/TaskSelector';
@@ -32,12 +33,7 @@ function ManyViews({ paramClient, setViewSrv, ros }) {
           <Stack gap="lg">
 
           {/* Camera */}
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <TitleTile text={'Camera Stream'} />
-            <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center' }}>
-            <ImageShower paramClient={paramClient} ros={ros} />
-            </Card.Section>
-          </Card>
+          <ImageShower paramClient={paramClient} ros={ros} name={'Camera Stream'} />
 
           {/* Camera Selection Buttons */}
           <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -50,14 +46,7 @@ function ManyViews({ paramClient, setViewSrv, ros }) {
           </Card>
 
           {/* Task Status Card */}
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section withBorder inheritPadding py="md">
-            <h3 style={{ margin: 0 }}>Task Status</h3>
-            </Card.Section>
-            <Card.Section inheritPadding py="md">
-            <TaskCompleted ros={ros} paramClient={paramClient} />
-            </Card.Section>
-          </Card>
+          <BoardStatus ros={ros} paramClient={paramClient} name={'Task Status'} />
 
           </Stack>
         </Grid.Col>
@@ -65,14 +54,11 @@ function ManyViews({ paramClient, setViewSrv, ros }) {
         {/* Right Column */}
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Stack gap="lg">
-            <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
-              <TitleTile text={'Analytics'} />
-              <Card.Section inheritPadding py="md">
-                <APlot />
-                <TitleTile text={'LINO BANFI'} />
-                <AnotherPlot ros={ ros }/>
-              </Card.Section>
-            </Card>
+
+            <APlot ros={ros} paramClient={paramClient} name={'Analytics'} />
+          
+            <AnotherPlot ros={ros} paramClient={paramClient} name={'Temperature Plot'} />
+          
           </Stack>
         </Grid.Col>
       </Grid>

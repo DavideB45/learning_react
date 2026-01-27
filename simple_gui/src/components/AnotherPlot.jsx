@@ -4,8 +4,10 @@
 import { useEffect, useRef, useState } from "react";
 import * as ROSLIB from "roslib";
 import { Chart } from "chart.js/auto";
+import { Card } from '@mantine/core';
+import TitleTile from './TitleTile';
 
-function AnotherPlot( { ros } ) {
+function AnotherPlot( { ros, paramClient, name } ) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -83,9 +85,10 @@ function AnotherPlot( { ros } ) {
   }
 
   return (
-	<div>
+	<Card shadow="sm" padding="lg" radius="md" withBorder>
+		  <TitleTile text={name} />
 	  <canvas ref={canvasRef} />
-	</div>
+	</Card>
   );
 }
 

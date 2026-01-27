@@ -3,8 +3,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
+import { Card, Container } from '@mantine/core';
+import TitleTile from './TitleTile';
 
-function APlot() {
+function APlot({ ros, paramClient, name }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const [count, setCount] = useState(0);
@@ -43,15 +45,20 @@ function APlot() {
   }, [count]);
 
   return (
-    <div>
-      <button onClick={() => {setCount(c => c + 1)}}>
-        Increment
-      </button>
+    <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
+      <TitleTile text={name} />
+      <Card.Section inheritPadding py="md">
+        <Container>
+          <button onClick={() => {setCount(c => c + 1)}}>
+            Increment
+          </button>
 
-      <p>Count: {count}</p>
+          <p>Count: {count}</p>
 
-      <canvas ref={canvasRef} />
-    </div>
+          <canvas ref={canvasRef} />
+        </Container>
+      </Card.Section>
+    </Card>
   );
 }
 

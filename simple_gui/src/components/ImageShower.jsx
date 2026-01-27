@@ -1,8 +1,10 @@
-import { Container, Image } from '@mantine/core';
+import { Container, Image, Card } from '@mantine/core';
 import { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
+import TitleTile from './TitleTile';
 
-function ImageShower({ ros, paramClient }) {
+
+function ImageShower({ ros, paramClient, name }) {
 
   const [imageUrl, setImageUrl] = useState(null);
 
@@ -14,6 +16,7 @@ function ImageShower({ ros, paramClient }) {
     let imageListener = null;
     if (!paramClient) return;
     paramClient.callService(request, function (result) {
+      console.log('Received parameters: ', result);
       imageListener = new ROSLIB.Topic({ 
         ros: ros,
         name: result.values[1].string_value,
@@ -34,15 +37,20 @@ function ImageShower({ ros, paramClient }) {
   if (!imageUrl) return <div>No image</div>;
 
   return (
-    <Container>
-      <Image
-        src={imageUrl}
-        alt="ROS stream"
-        width={512}
-        height={512}
-        style={{ imageRendering: "pixelated", borderRadius: "8px" }}
-      />
-    </Container>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <TitleTile text={name} />
+      <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center' }}>
+      <Container>
+        <Image
+          src={imageUrl}
+          alt="ROS stream"
+          width={512}
+          height={512}
+          style={{ imageRendering: "pixelated", borderRadius: "8px" }}
+        />
+      </Container>
+      </Card.Section>
+    </Card>
   );
 }
 
