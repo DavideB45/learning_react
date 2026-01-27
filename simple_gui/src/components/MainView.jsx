@@ -14,7 +14,7 @@ import ViewButtons from './ViewButtons';
 
 function MainView({ paramClient, setViewSrv, ros }) {
   const [layout, setLayout] = React.useState([
-    { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false },
+    { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
     { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
     { x: 0, y: 6, w: 6, h: 1, i: 'boardStatus', static: false },
     { x: 6, y: 0, w: 6, h: 3, i: 'analytics', static: false },
@@ -26,21 +26,21 @@ function MainView({ paramClient, setViewSrv, ros }) {
   };
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div style={{ padding: '16px', width: '100vw', height: '100vh' }}>
       <ToastContainer />
       <GridLayout
         className="layout"
         layout={layout}
         onLayoutChange={handleLayoutChange}
         cols={12}
-        rowHeight={1200}
-        width={1200}
+        rowHeight={30}
+        width={window.innerWidth - 64}
         isDraggable={true}
         isResizable={true}
         compactType="vertical"
         preventCollision={false}
         containerPadding={[0, 0]}
-        margin={[16, 16]}
+        margin={[0, 16]}
       >
         {/* Camera */}
         <div key="camera">
