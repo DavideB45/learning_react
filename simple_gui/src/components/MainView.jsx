@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@mantine/core';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { GridLayout, Layouts } from 'react-grid-layout';
+import { GridLayout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -20,6 +20,17 @@ function MainView({ paramClient, setViewSrv, ros }) {
     { x: 6, y: 0, w: 6, h: 3, i: 'analytics', static: false },
     { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
   ]);
+  
+  const [width, setWidth] = React.useState(window.innerWidth - 64);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth - 64);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLayoutChange = (newLayout) => {
     setLayout(newLayout);
@@ -34,7 +45,7 @@ function MainView({ paramClient, setViewSrv, ros }) {
         onLayoutChange={handleLayoutChange}
         cols={12}
         rowHeight={30}
-        width={window.innerWidth - 64}
+        width={width}
         isDraggable={true}
         isResizable={true}
         compactType="vertical"
