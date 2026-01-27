@@ -1,70 +1,19 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./toast.css";
-import { AppShell, Container, Card, Grid, Button, Group, Stack} from '@mantine/core';
+import { AppShell, Container, Button, Group } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 
 // Components import
-import ImageShower from "./components/ImageShower";
-import TaskCompleted from "./components/TaskCompleted";
-import BoardStatus from "./components/BoardStatus";
 import Game from "./components/TrisBoard";
 import RobotSetup from "./components/RobotSetup";
 import TaskSelector from './components/TaskSelector';
-import APlot from './components/APlot';
-import AnotherPlot from './components/AnotherPlot';
 import ThemeToggle from './components/ThemeToggle';
-import ViewButtons from './components/ViewButtons';
-import TitleTile from './components/TitleTile';
+import MainView from './components/MainView';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
 
-function ManyViews({ paramClient, setViewSrv, ros }) {
-
-  // load configuration from a json/xml
-
-  return (
-    <Container size="xl" py="xl">
-      <ToastContainer />
-      <Grid gutter="lg">
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <Stack gap="lg">
-
-          {/* Camera */}
-          <ImageShower paramClient={paramClient} ros={ros} name={'Camera Stream'} />
-
-          {/* Camera Selection Buttons */}
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section withBorder inheritPadding py="md">
-            <h3 style={{ margin: 0 }}>Camera View</h3>
-            </Card.Section>
-            <Card.Section inheritPadding py="md">
-            <ViewButtons setViewSrv={setViewSrv} />
-            </Card.Section>
-          </Card>
-
-          {/* Task Status Card */}
-          <BoardStatus ros={ros} paramClient={paramClient} name={'Task Status'} />
-
-          </Stack>
-        </Grid.Col>
-
-        {/* Right Column */}
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <Stack gap="lg">
-
-            <APlot ros={ros} paramClient={paramClient} name={'Analytics'} />
-          
-            <AnotherPlot ros={ros} paramClient={paramClient} name={'Temperature Plot'} />
-          
-          </Stack>
-        </Grid.Col>
-      </Grid>
-    </Container>
-  );
-}
 
 function Navigation() {
   const location = useLocation();
@@ -130,7 +79,7 @@ export default function All() {
             <Route
               path="/executing"
               element={
-                <ManyViews
+                <MainView
                   paramClient={paramClient}
                   setViewSrv={setViewSrv}
                   ros={ros}
