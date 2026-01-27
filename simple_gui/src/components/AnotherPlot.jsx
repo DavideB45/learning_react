@@ -85,7 +85,7 @@ function AnotherPlot( { ros, paramClient, name } ) {
   }
 
   return (
-	<Card shadow="sm" padding="lg" radius="md" withBorder>
+	<Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
 		  <TitleTile text={name} />
 	  <canvas ref={canvasRef} />
 	</Card>

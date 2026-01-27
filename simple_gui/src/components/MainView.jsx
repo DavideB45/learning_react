@@ -15,10 +15,10 @@ import ViewButtons from './ViewButtons';
 function MainView({ paramClient, setViewSrv, ros }) {
   const [layout, setLayout] = React.useState([
     { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false },
-    { x: 0, y: 4, w: 6, h: 2, i: 'cameraButtons', static: false },
-    { x: 0, y: 6, w: 6, h: 3, i: 'boardStatus', static: false },
-    { x: 6, y: 0, w: 6, h: 4, i: 'analytics', static: false },
-    { x: 6, y: 4, w: 6, h: 4, i: 'temperaturePlot', static: false },
+    { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
+    { x: 0, y: 6, w: 6, h: 1, i: 'boardStatus', static: false },
+    { x: 6, y: 0, w: 6, h: 3, i: 'analytics', static: false },
+    { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
   ]);
 
   const handleLayoutChange = (newLayout) => {
@@ -33,10 +33,10 @@ function MainView({ paramClient, setViewSrv, ros }) {
         layout={layout}
         onLayoutChange={handleLayoutChange}
         cols={12}
-        rowHeight={10}
+        rowHeight={1200}
         width={1200}
         isDraggable={true}
-        isResizable={false}
+        isResizable={true}
         compactType="vertical"
         preventCollision={false}
         containerPadding={[0, 0]}

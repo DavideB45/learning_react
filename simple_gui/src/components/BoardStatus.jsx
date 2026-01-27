@@ -41,7 +41,7 @@ function BoardStatus({ ros, paramClient, name }) {
   }, [paramClient]);
 
   return (
-	<Card shadow="sm" padding="lg" radius="md" withBorder>
+	<Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
 		<Card.Section withBorder inheritPadding py="md">
 			<h3 style={{ margin: 0 }}>{name}</h3>
 		</Card.Section>
