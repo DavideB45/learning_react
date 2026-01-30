@@ -1,15 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as ROSLIB from "roslib";
 import { toast } from "react-toastify";
 import { useLocation } from 'react-router-dom';
 import { Card } from '@mantine/core';
 
+import TitleTile from "./TitleTile";
 
-function BoardStatus({ ros, paramClient, name }) {
+
+function BoardStatus({ ros, paramClient, name, onClick }) {
   const [isCompleted, setIsCompleted] = useState(false)
   const location = useLocation();
   const color = isCompleted ? "green" : "red";
   const text = isCompleted ? "Task completed" : "Task not completed";
+  const taskListenerRef = useRef(null);
 
   useEffect(() => {
     if (!paramClient) return;
@@ -17,34 +20,31 @@ function BoardStatus({ ros, paramClient, name }) {
     const request = {
       names: ['task.type', 'task.name']
     };
-    let taskListener = null;
     paramClient.callService(request, function (result) {
-      taskListener = new ROSLIB.Topic({ 
+      taskListenerRef.current = new ROSLIB.Topic({ 
         ros: ros,
         name: result.values[1].string_value,
         messageType: result.values[0].string_value
       });
 
-      taskListener.subscribe(function (message) {
+      taskListenerRef.current.subscribe(function (message) {
         if (location.pathname !== "/executing") return;
         setIsCompleted(message.data)
         if (message.data)
-          toast.success("Task completed", { icon: "✅" , toastId: 1},
-        );
+          toast.success("Task completed", { icon: "✅" , toastId: 1});
       })
     });
+
     return () => {
-      if (taskListener) {
-        taskListener.unsubscribe();
+      if (taskListenerRef.current) {
+        taskListenerRef.current.unsubscribe();
       }
     };
-  }, [paramClient]);
+  }, [paramClient, location.pathname]);
 
   return (
 	<Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
-		<Card.Section withBorder inheritPadding py="md">
-			<h3 style={{ margin: 0 }}>{name}</h3>
-		</Card.Section>
+    <TitleTile text={name} onClick={onClick} />
 		<Card.Section inheritPadding py="md">
 			<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 			<span

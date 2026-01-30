@@ -1,27 +1,36 @@
 import React from 'react';
-import { Card } from '@mantine/core';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GridLayout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-import ImageShower from "./ImageShower";
-import BoardStatus from "./BoardStatus";
-import APlot from './APlot';
-import AnotherPlot from './AnotherPlot';
-import ViewButtons from './ViewButtons';
+import { useDisclosure } from '@mantine/hooks';
+import { Drawer, Button } from '@mantine/core';
+
+import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule } from '../modularInterface/modules';
+
+//const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot' ]
+
 
 function MainView({ paramClient, setViewSrv, ros }) {
-  const [layout, setLayout] = React.useState([
-    { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
-    { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
-    { x: 0, y: 6, w: 6, h: 1, i: 'boardStatus', static: false },
-    { x: 6, y: 0, w: 6, h: 3, i: 'analytics', static: false },
-    { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
-  ]);
-  
+  // Reshape the layout 
+  const [layout, setLayout] = React.useState(currentLayout);
+  let additionalModules = all_modules.filter(name => !layout.some(item => item.i === name))
+  // Reshape the window
   const [width, setWidth] = React.useState(window.innerWidth - 64);
+  // show/hide the menu
+  const [opened, { open, close }] = useDisclosure(false);
+
+  function addElement(name){
+    const defaultElement = defaultLayout.find(item => item.i === name);
+    const newElement = defaultElement ? { ...defaultElement, static: false } : { x: 0, y: 0, w: 6, h: 4, i: name, static: false, isResizable: true };
+    setLayout([...layout, newElement])
+  }
+
+  function removeElement(name) {
+    setLayout(layout.filter(item => item.i !== name));
+  }
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -39,6 +48,18 @@ function MainView({ paramClient, setViewSrv, ros }) {
   return (
     <div style={{ padding: '16px', width: '100vw', height: '100vh' }}>
       <ToastContainer />
+      <Drawer offset={8} radius="md" opened={opened} onClose={close} title="Additional Elements">
+        {
+          additionalModules.map((name) => (
+            <div key={name} style={{ marginBottom: '12px' }}>
+              {getAddModule(name, () => addElement(name))}
+            </div>
+          ))
+        }
+      </Drawer>
+      <Button variant="default" onClick={open}>
+        Open Drawer
+      </Button>
       <GridLayout
         className="layout"
         layout={layout}
@@ -53,37 +74,17 @@ function MainView({ paramClient, setViewSrv, ros }) {
         containerPadding={[0, 0]}
         margin={[0, 16]}
       >
-        {/* Camera */}
-        <div key="camera">
-        <ImageShower paramClient={paramClient} ros={ros} name={'Camera Stream'} />
-        </div>
-
-        {/* Camera Selection Buttons */}
-        <div key="cameraButtons">
-          <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
-            <Card.Section withBorder inheritPadding py="md">
-              <h3 style={{ margin: 0 }}>Camera View</h3>
-            </Card.Section>
-            <Card.Section inheritPadding py="md">
-              <ViewButtons setViewSrv={setViewSrv} />
-            </Card.Section>
-          </Card>
-        </div>
-
-        {/* Task Status Card */}
-        <div key="boardStatus">
-        <BoardStatus ros={ros} paramClient={paramClient} name={'Task Status'} />
-        </div>
-
-        {/* Analytics Plot */}
-        <div key="analytics">
-        <APlot ros={ros} paramClient={paramClient} name={'Analytics'} />
-        </div>
-
-        {/* Temperature Plot */}
-        <div key="temperaturePlot">
-        <AnotherPlot ros={ros} paramClient={paramClient} name={'Temperature Plot'} />
-        </div>
+        {layout.map((moduleName) => (
+          <div key={moduleName['i']}>
+            {getNamedModule({
+              name: moduleName['i'],
+              ros: ros,
+              paramClient: paramClient,
+              setViewSrv: setViewSrv,
+              onClose: () => removeElement(moduleName['i'])
+            })}
+          </div>
+        ))}
       </GridLayout>
     </div>
   );

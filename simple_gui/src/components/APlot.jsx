@@ -6,7 +6,7 @@ import { Chart } from "chart.js/auto";
 import { Card, Button } from '@mantine/core';
 import TitleTile from './TitleTile';
 
-function APlot({ ros, paramClient, name }) {
+function APlot({ ros, paramClient, name, onClick }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const [count, setCount] = useState(0);
@@ -46,7 +46,7 @@ function APlot({ ros, paramClient, name }) {
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column', width: '100%' }}>
-    <TitleTile text={name} />
+    <TitleTile text={name} onClick={onClick}/>
       <div style={{ flex: 1, position: 'relative', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }}/>
       </div>

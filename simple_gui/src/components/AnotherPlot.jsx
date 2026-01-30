@@ -7,7 +7,7 @@ import { Chart } from "chart.js/auto";
 import { Card } from '@mantine/core';
 import TitleTile from './TitleTile';
 
-function AnotherPlot( { ros, paramClient, name } ) {
+function AnotherPlot( { ros, paramClient, name, onClick } ) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -86,9 +86,9 @@ function AnotherPlot( { ros, paramClient, name } ) {
 
   return (
 	<Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column', width: '100%' }}>
-	<TitleTile text={name} />
-	<div style={{ flex: 1, position: 'relative', minHeight: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-		<canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+	<TitleTile text={name} onClick={onClick}/>
+	<div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', minHeight: 0, width: '100%' }}>
+		<canvas ref={canvasRef} />
 	</div>
 	</Card>
   );

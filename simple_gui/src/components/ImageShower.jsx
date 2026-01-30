@@ -1,10 +1,10 @@
-import { Container, Image, Card } from '@mantine/core';
+import { Image, Card } from '@mantine/core';
 import { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
+
 import TitleTile from './TitleTile';
 
-
-function ImageShower({ ros, paramClient, name }) {
+function ImageShower({ ros, paramClient, name, onClick }) {
 
   const [imageUrl, setImageUrl] = useState(null);
 
@@ -38,7 +38,7 @@ function ImageShower({ ros, paramClient, name }) {
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <TitleTile text={name} />
+      <TitleTile text={name} onClick={onClick}/>
       <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, overflow: 'hidden', borderRadius: "8px" }}>
         <Image
           src={imageUrl}
