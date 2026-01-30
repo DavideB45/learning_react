@@ -37,18 +37,15 @@ function ImageShower({ ros, paramClient, name }) {
   if (!imageUrl) return <div>No image</div>;
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <TitleTile text={name} />
-      <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center' }}>
-      <Container>
+      <Card.Section inheritPadding py="md" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, overflow: 'hidden', borderRadius: "8px" }}>
         <Image
           src={imageUrl}
           alt="ROS stream"
-          width={512}
-          height={512}
-          style={{ imageRendering: "pixelated", borderRadius: "8px" }}
+          fit="contain"
+          style={{ imageRendering: "pixelated", borderRadius: "8px", maxWidth: '100%', maxHeight: '100%', overflow: 'hidden' }}
         />
-      </Container>
       </Card.Section>
     </Card>
   );
