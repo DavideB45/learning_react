@@ -1,7 +1,7 @@
 // https://blog.logrocket.com/using-chart-js-react/
 // https://github.com/ludusrusso/rosgraph_web_visualizer
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as ROSLIB from "roslib";
 import { Chart } from "chart.js/auto";
 import { Card } from '@mantine/core';
@@ -39,6 +39,7 @@ function AnotherPlot( { ros, paramClient, name, onClick } ) {
 		],
 	  },
 	  options: {
+		animation: false,
 		scales: {
 		  y: {
 			beginAtZero: true,
