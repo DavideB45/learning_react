@@ -5,12 +5,29 @@ import { useLocation } from 'react-router-dom';
 import { Card } from '@mantine/core';
 import TitleTile from "./TitleTile";
 
+function SingleTask( {name, color} ) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: color, display: "inline-block", }}/>
+      <span>{name}</span>
+    </div>
+  )
+}
+
 function BoardStatus({ ros, paramClient, name, onClick }) {
-  const [isCompleted, setIsCompleted] = useState(false);
-  const color = isCompleted ? "green" : "red";
-  const text = isCompleted ? "Task completed" : "Task not completed";
+  const [isCompleted, setIsCompleted] = useState(0);
   const taskListenerRef = useRef(null);
   const location = useLocation();
+  const items = [
+    "Press start button",
+    "Match slider to screen",
+    "Move probe plug",
+    "Open door",
+    "Remove batteries",
+    "Check batteries",
+    "Wrap cable",
+    "Press stop button"
+  ]
 
   useEffect(() => {
     // Cleanup function that runs when location changes or component unmounts
@@ -41,10 +58,10 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
       });
 
       taskListenerRef.current.subscribe(function (message) {
-        setIsCompleted(message.data);
-        if (message.data) {
-          toast.success("Task completed", { icon: "✅", toastId: 1 });
+        if (message.data > isCompleted) {
+          toast.success("Task "+ items[message.data - 1] + " completed", { icon: "✅", toastId: message.data });
         }
+        setIsCompleted(message.data);
       });
     });
 
@@ -54,24 +71,17 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
         taskListenerRef.current = null;
       }
     };
-  }, [paramClient, ros, location.pathname]);
+  }, [paramClient, ros, location.pathname, isCompleted]);
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
       <TitleTile text={name} onClick={onClick} />
       <Card.Section inheritPadding py="md">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span
-            style={{
-              width: "12px",
-              height: "12px",
-              borderRadius: "50%",
-              backgroundColor: color,
-              display: "inline-block",
-            }}
-          />
-          <span>{text}</span>
-        </div>
+        {items.map((text, index) => (
+          <div key={index}>
+            <SingleTask name={text} color={isCompleted > index ? 'green' : isCompleted == index ? 'blue' : 'red'} />
+          </div>
+        ))}
       </Card.Section>
     </Card>
   );

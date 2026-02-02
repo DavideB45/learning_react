@@ -4,6 +4,15 @@ import { toast } from "react-toastify";
 import { useLocation } from 'react-router-dom';
 
 
+function SingleTask( {name, color} ) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: color, display: "inline-block", }}/>
+      <span>{name}</span>
+    </div>
+  )
+}
+
 function TaskCompleted({ ros, paramClient }) {
   const [isCompleted, setIsCompleted] = useState(false)
   const location = useLocation();
@@ -40,19 +49,6 @@ function TaskCompleted({ ros, paramClient }) {
   }, [paramClient]);
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <span
-        style={{
-          width: "12px",
-          height: "12px",
-          borderRadius: "50%",
-          backgroundColor: color,
-          display: "inline-block",
-        }}
-      />
-      <span>{text}</span>
-    </div>
+    <SingleTask name={text} color={color} />
   );
 }
-
-export default TaskCompleted
