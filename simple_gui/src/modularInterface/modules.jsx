@@ -5,21 +5,27 @@ import BoardStatus from "../components/BoardStatus";
 import APlot from '../components/APlot';
 import AnotherPlot from '../components/AnotherPlot';
 import ViewButtons from '../components/ViewButtons';
+import Timer from "../components/Timer";
 import CloseButton from "../components/CloseButton";
 
-const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot' ]
+const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer' ]
 
 const defaultLayout = [
     { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
     { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
-    { x: 0, y: 6, w: 6, h: 1, i: 'boardStatus', static: false },
-    { x: 6, y: 0, w: 6, h: 3, i: 'analytics', static: false },
+    { x: 0, y: 6, w: 6, h: 2, i: 'boardStatus', static: false, minH:2 },
+    { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
     { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
+	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
 ];
 
 const currentLayout = [
 	{ x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
-	{ x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
+    { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
+    { x: 0, y: 6, w: 6, h: 2, i: 'boardStatus', static: false, minH:2 },
+    { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
+    { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
+	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
 ]
 
 export { all_modules, defaultLayout, currentLayout, getNamedModule, getAddModule}
@@ -53,6 +59,10 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose}) {
 		case 'temperaturePlot':
 			return (
 				<AnotherPlot ros={ros} paramClient={paramClient} name={'Temperature Plot'} onClick={onClose}/>
+			)
+		case 'timer':
+			return (
+				<Timer ros={ros} paramClient={paramClient} name={'Execution Time'} onClick={onClose}/>
 			)
 		default:
 			return (
