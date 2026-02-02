@@ -21,12 +21,14 @@ function TaskSelector({ ros }) {
   const [mouse, setMouse] = useState([0, 0]);
   const [dragged, setDragged] = useState(null);
   const [items, setItems] = useState([
-    "Press red button",
+    "Press start button",
+    "Match slider to screen",
+    "Move probe plug",
+    "Open door",
     "Remove batteries",
     "Check batteries",
-    "Slide the thing",
-    "Press blue button",
-    "Order Cable"
+    "Wrap cable",
+    "Press stop button"
   ]);
 
   const [sendList, setSendList] = useState(null);
