@@ -28,7 +28,7 @@ function TaskSelector({ ros }) {
     "Remove batteries",
     "Check batteries",
     "Wrap cable",
-    "Press stop button"
+    "Press stop button" 
   ]);
 
   const [sendList, setSendList] = useState(null);
