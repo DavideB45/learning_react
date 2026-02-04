@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card, Text, Button, Group } from '@mantine/core'
 import TitleTile from './TitleTile'
 
-export default function Timer({ ros, paramClient, name, onClick }) {
+export default function Timer({ ros, paramClient, name, onClick, toggleIsRunning }) {
   const [time, setTime] = useState(0) // milliseconds
   const [running, setRunning] = useState(false)
   const intervalRef = useRef(null)
@@ -26,6 +26,8 @@ export default function Timer({ ros, paramClient, name, onClick }) {
   }
 
   const handleReset = () => {
+    if(running)
+      toggleIsRunning()
     setRunning(false)
     setTime(0)
   }
@@ -66,7 +68,10 @@ export default function Timer({ ros, paramClient, name, onClick }) {
       
       <Group grow style={{ marginTop: 'auto' }}>
         <Button 
-          onClick={() => setRunning(r => !r)}
+          onClick={() => {
+            toggleIsRunning()
+            setRunning(r => !r)
+          }}
           color={running ? 'red' : 'green'}
           size="md"
           style={{
@@ -80,7 +85,7 @@ export default function Timer({ ros, paramClient, name, onClick }) {
         <Button 
           onClick={handleReset}
           color="gray"
-          variant="light"
+          //variant="light"
           size="md"
           disabled={time === 0}
           style={{

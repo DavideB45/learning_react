@@ -30,7 +30,7 @@ const currentLayout = [
 
 export { all_modules, defaultLayout, currentLayout, getNamedModule, getAddModule}
 
-function getNamedModule({name, ros, paramClient, setViewSrv, onClose}) {
+function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRunning}) {
 	switch(name) {
 		case 'camera':
 			return (
@@ -62,7 +62,7 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose}) {
 			)
 		case 'timer':
 			return (
-				<Timer ros={ros} paramClient={paramClient} name={'Execution Time'} onClick={onClose}/>
+				<Timer ros={ros} paramClient={paramClient} name={'Execution Time'} onClick={onClose} toggleIsRunning={toggleIsRunning} />
 			)
 		default:
 			return (

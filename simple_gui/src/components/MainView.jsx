@@ -13,7 +13,7 @@ import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule
 //const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot' ]
 
 
-function MainView({ paramClient, setViewSrv, ros }) {
+function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
   // Reshape the layout 
   const [layout, setLayout] = React.useState(currentLayout);
   let additionalModules = all_modules.filter(name => !layout.some(item => item.i === name))
@@ -81,6 +81,7 @@ function MainView({ paramClient, setViewSrv, ros }) {
               ros: ros,
               paramClient: paramClient,
               setViewSrv: setViewSrv,
+              toggleIsRunning: toggleRunning,
               onClose: () => removeElement(moduleName['i'])
             })}
           </div>

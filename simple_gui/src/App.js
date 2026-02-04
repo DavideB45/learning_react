@@ -3,6 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./toast.css";
 import { AppShell, Container, Button, Group } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import { useState } from "react"
 
 // Components import
 import Game from "./components/TrisBoard";
@@ -15,7 +16,7 @@ import MainView from './components/MainView';
 import { useRos } from "./hooks/useRos";
 
 
-function Navigation() {
+function Navigation( {isRunning} ) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -28,7 +29,7 @@ function Navigation() {
     { label: 'Select', path: '/', color: 'violet' },
     { label: 'Tasks', path: '/list', color: 'violet' },
     { label: 'Robot', path: '/executing', color: 'cyan' },
-    { label: 'Tris', path: '/game', color: 'cyan' },
+   // { label: 'Tris', path: '/game', color: 'cyan' },
   ];
 
   return (
@@ -41,6 +42,7 @@ function Navigation() {
             color={link.color}
             onClick={() => navigate(link.path)}
             size="md"
+            disabled={isRunning}
           >
             {link.label}
           </Button>
@@ -54,6 +56,7 @@ function Navigation() {
 export default function All() {
 
   const { ros, connected, paramClient, setViewSrv, taskStat } = useRos()
+  const [isRunning, setIsRunning] = useState(false)
 
   return (
     <BrowserRouter>
@@ -68,7 +71,7 @@ export default function All() {
         <AppShell.Header withBorder>
           <Container size="xl" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
             <Group gap='lg'>
-              <Navigation />
+              <Navigation isRunning={isRunning}/>
               <ThemeToggle />
             </Group>
           </Container>
@@ -83,6 +86,7 @@ export default function All() {
                   paramClient={paramClient}
                   setViewSrv={setViewSrv}
                   ros={ros}
+                  toggleRunning={ () => setIsRunning(!isRunning)}
                 />
               }
             />
