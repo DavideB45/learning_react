@@ -1,4 +1,4 @@
 {
-  "robotType": "franka",
-  "algorithm": "pick_place"
+  "robotType": "ur5",
+  "algorithm": "v1"
 }

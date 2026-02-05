@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import "./toast.css";
-import { AppShell, Container, Button, Group } from '@mantine/core';
+import { AppShell, Container, Button, Group, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useState } from "react"
 
@@ -36,6 +36,7 @@ function Navigation( {isRunning} ) {
     <Container size="xl" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
       <Group gap="md">
         {links.map((link) => (
+          <Tooltip label="Tooltip for disabled button" opened={ isRunning ? undefined : false}>
           <Button
             key={link.path}
             variant={location.pathname === link.path ? 'filled' : 'light'}
@@ -43,9 +44,11 @@ function Navigation( {isRunning} ) {
             onClick={() => navigate(link.path)}
             size="md"
             disabled={isRunning}
+
           >
             {link.label}
           </Button>
+          </Tooltip>
         ))}
       </Group>
     </Container>
