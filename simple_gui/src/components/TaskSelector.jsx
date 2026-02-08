@@ -14,21 +14,14 @@ function SendButton( { lable, onClick} ){
   )
 }
 
-function TaskSelector({ ros }) {
+function TaskSelector({ ros, paramClient }) {
   
   const [dropZone, setDropZone] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [mouse, setMouse] = useState([0, 0]);
   const [dragged, setDragged] = useState(null);
   const [items, setItems] = useState([
-    "Press start button",
-    "Match slider to screen",
-    "Move probe plug",
-    "Open door",
-    "Remove batteries",
-    "Check batteries",
-    "Wrap cable",
-    "Press stop button" 
+    "waiting for Ros" 
   ]);
 
   const [sendList, setSendList] = useState(null);
@@ -44,6 +37,13 @@ function TaskSelector({ ros }) {
       setSendList(setListSrv)
     }, [ros]
   )
+
+  useEffect(() => {
+    if (!paramClient) return;
+    paramClient.callService({names:['board.list']}, function (result) {
+      setItems(result.values[0].string_array_value)
+    });
+  }, [paramClient]);
 
   useEffect(() => {
 	// Handle the mouse movemnt

@@ -36,15 +36,17 @@ function Navigation( {isRunning} ) {
     <Container size="xl" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
       <Group gap="md">
         {links.map((link) => (
-          <Tooltip label="Tooltip for disabled button" opened={ isRunning ? undefined : false}>
-          <Button
+          <Tooltip 
+            label="Tooltip for disabled button" 
+            opened={ isRunning ? undefined : false}
             key={link.path}
+          >
+          <Button
             variant={location.pathname === link.path ? 'filled' : 'light'}
             color={link.color}
             onClick={() => navigate(link.path)}
             size="md"
             disabled={isRunning}
-
           >
             {link.label}
           </Button>
@@ -94,7 +96,7 @@ export default function All() {
               }
             />
             <Route path="/game" element={<Game />} />
-            <Route path="/list" element={<TaskSelector ros={ros} />} />
+            <Route path="/list" element={<TaskSelector ros={ros} paramClient={paramClient}/>} />
           </Routes>
         </AppShell.Main>
       </AppShell>

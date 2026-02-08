@@ -18,16 +18,7 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
   const [isCompleted, setIsCompleted] = useState(0);
   const taskListenerRef = useRef(null);
   const location = useLocation();
-  const items = [
-    "Press start button",
-    "Match slider to screen",
-    "Move probe plug",
-    "Open door",
-    "Remove batteries",
-    "Check batteries",
-    "Wrap cable",
-    "Press stop button"
-  ]
+  const [items, setItems] = useState([])
 
   useEffect(() => {
     // Cleanup function that runs when location changes or component unmounts
@@ -71,7 +62,14 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
         taskListenerRef.current = null;
       }
     };
-  }, [paramClient, ros, location.pathname, isCompleted]);
+  }, [items, location.pathname, isCompleted]);
+
+  useEffect(() => {
+    if (!paramClient) return;
+    paramClient.callService({names:['board.list']}, function (result) {
+      setItems(result.values[0].string_array_value)
+    });
+  }, [paramClient]);
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
