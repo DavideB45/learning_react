@@ -77,23 +77,23 @@ function RobotSetup() {
               value={robotType}
               onChange={(value) => setRobotType(value || "")}
               data={[
-                { value: "ur5", label: "UR5 + gripper" },
-                { value: "franka", label: "Franka + gripper" },
+                { value: "ur5", label: "UR5 + Robotiq HandE" },
+                { value: "franka", label: "Franka Emika + Franka Hand" },
               ]}
               size="md"
             />
 
             {/* Algorithm selection */}
             <Select
-              label="Taskboard"
-              placeholder="Select a taskboard version"
+              label="Task board"
+              placeholder="Select a task board version"
               searchable
               clearable
               value={algorithm}
               disabled={true}
               onChange={(value) => setAlgorithm(value || "")}
               data={[
-                { value: "v1", label: "Taskboard V1.0" },
+                { value: "v1", label: "Task board V1.0" },
               ]}
               size="md"
             />
@@ -105,7 +105,7 @@ function RobotSetup() {
                 color="green"
                 icon={null}
               >
-                Robot: <strong>{robotType.toUpperCase()}</strong> | Taskboard: <strong>{algorithm.replace(/_/g, " ")}</strong>
+                Robot: <strong>{robotType.toUpperCase()}</strong> | Task board: <strong>{algorithm.replace(/_/g, " ")}</strong>
               </Alert>
             )}
 

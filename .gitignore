@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# urdf
+/simple_gui/public/robot
+/simple_gui/public/task_board

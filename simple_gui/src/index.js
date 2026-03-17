@@ -8,9 +8,9 @@ import App from "./App";
 
 const root = createRoot(document.getElementById("root"));
 root.render(
-  <StrictMode>
+  //<StrictMode>
     <MantineProvider>
       <App />
     </MantineProvider>
-  </StrictMode>
+  //</StrictMode>
 );

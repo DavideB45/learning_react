@@ -9,9 +9,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { Drawer, Button } from '@mantine/core';
 
 import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule } from '../modularInterface/modules';
-
-//const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot' ]
-
+import TelemetryPlot from '../components/TelemetryPlot';
+import { useTaskBoard } from '../hooks/useTaskBoard';
 
 function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
   // Reshape the layout 
@@ -76,14 +75,16 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
       >
         {layout.map((moduleName) => (
           <div key={moduleName['i']}>
-            {getNamedModule({
-              name: moduleName['i'],
-              ros: ros,
-              paramClient: paramClient,
-              setViewSrv: setViewSrv,
-              toggleIsRunning: toggleRunning,
-              onClose: () => removeElement(moduleName['i'])
-            })}
+            {
+              getNamedModule({
+                name: moduleName['i'],
+                ros: ros,
+                paramClient: paramClient,
+                setViewSrv: setViewSrv,
+                toggleIsRunning: toggleRunning,
+                onClose: () => removeElement(moduleName['i'])
+              })
+            }
           </div>
         ))}
       </GridLayout>

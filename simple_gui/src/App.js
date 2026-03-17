@@ -6,11 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from "react"
 
 // Components import
-import Game from "./components/TrisBoard";
-import RobotSetup from "./components/RobotSetup";
-import TaskSelector from './components/TaskSelector';
+import RobotSetup from "./views/RobotSetup";
+import TaskSelector from './views/TaskSelector';
 import ThemeToggle from './components/ThemeToggle';
-import MainView from './components/MainView';
+import MainView from './views/MainView';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -95,7 +94,6 @@ export default function All() {
                 />
               }
             />
-            <Route path="/game" element={<Game />} />
             <Route path="/list" element={<TaskSelector ros={ros} paramClient={paramClient}/>} />
           </Routes>
         </AppShell.Main>
