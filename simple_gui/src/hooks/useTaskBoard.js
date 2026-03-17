@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 
-// 1. Create a regular function (not a hook) for the connection logic
-function connectWebSocket(deviceIP, onRetry, onTaskboardUpdate, onSystemUpdate, onTaskUpdate) {
+function connectWebSocket(deviceIP, onRetry, onNewData) {
   try {
     const taskboard_ws_url = deviceIP ? "ws://" + deviceIP + "/ws" : '/ws';
     const taskboard_ws = new WebSocket(taskboard_ws_url);
@@ -9,13 +8,7 @@ function connectWebSocket(deviceIP, onRetry, onTaskboardUpdate, onSystemUpdate, 
     taskboard_ws.onmessage = function(event) {
       try {
         const data = JSON.parse(event.data);
-        if (data.ws_data_type === "taskboard_status") {
-          console.log('taskboard_status received')
-        } else if (data.ws_data_type === "system_status") {
-          console.log('system_status received')
-        } else if (data.ws_data_type === "task_status") {
-          console.log('task_status received')
-        }
+        onNewData(data)
       } catch (error) {
         console.error('Error parsing WebSocket data:', error);
       }
@@ -23,7 +16,7 @@ function connectWebSocket(deviceIP, onRetry, onTaskboardUpdate, onSystemUpdate, 
     
     taskboard_ws.onclose = (event) => {
       console.warn("WebSocket closed. Reconnecting in 2 seconds...", event);
-      setTimeout(() => onRetry(), 2000);  // Call the retry callback
+      setTimeout(() => onRetry(), 2000);
     };
     
     taskboard_ws.onerror = (error) => {
@@ -38,17 +31,14 @@ function connectWebSocket(deviceIP, onRetry, onTaskboardUpdate, onSystemUpdate, 
   }
 }
 
-// 2. Create the hook that manages the connection
-export function useTaskBoard(deviceIP) {
+export function useTaskBoard(deviceIP, onNewData) {
   useEffect(() => {
-    // Create a retry function that can be called from setTimeout
     const retry = () => {
-      connectWebSocket(deviceIP, retry);
+      connectWebSocket(deviceIP, retry, onNewData);
     };
     
-    const ws = connectWebSocket(deviceIP, retry);
+    const ws = connectWebSocket(deviceIP, retry, onNewData);
     
-    // Cleanup: close the connection when component unmounts
     return () => {
       if (ws) {
         ws.close();

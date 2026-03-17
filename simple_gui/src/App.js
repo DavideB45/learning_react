@@ -28,7 +28,6 @@ function Navigation( {isRunning} ) {
     { label: 'Select', path: '/', color: 'violet' },
     { label: 'Tasks', path: '/list', color: 'violet' },
     { label: 'Robot', path: '/executing', color: 'cyan' },
-   // { label: 'Tris', path: '/game', color: 'cyan' },
   ];
 
   return (

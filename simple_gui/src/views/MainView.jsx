@@ -9,8 +9,9 @@ import { useDisclosure } from '@mantine/hooks';
 import { Drawer, Button } from '@mantine/core';
 
 import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule } from '../modularInterface/modules';
-import TelemetryPlot from '../components/TelemetryPlot';
 import { useTaskBoard } from '../hooks/useTaskBoard';
+
+const telemetryRegister = {}
 
 function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
   // Reshape the layout 
@@ -20,12 +21,21 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
   const [width, setWidth] = React.useState(window.innerWidth - 64);
   // show/hide the menu
   const [opened, { open, close }] = useDisclosure(false);
+  // an array of function to call when there is an update from the taskboard
 
   function addElement(name){
     const defaultElement = defaultLayout.find(item => item.i === name);
     const newElement = defaultElement ? { ...defaultElement, static: false } : { x: 0, y: 0, w: 6, h: 4, i: name, static: false, isResizable: true };
     setLayout([...layout, newElement])
   }
+
+  function updateTelemetry(json_data){
+    for(var key in telemetryRegister){
+      telemetryRegister[key](json_data)
+    }
+  }
+
+  useTaskBoard('localhost:8765', updateTelemetry)
 
   function removeElement(name) {
     setLayout(layout.filter(item => item.i !== name));
@@ -82,7 +92,8 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
                 paramClient: paramClient,
                 setViewSrv: setViewSrv,
                 toggleIsRunning: toggleRunning,
-                onClose: () => removeElement(moduleName['i'])
+                onClose: () => removeElement(moduleName['i']),
+                telemetryUpdaters: telemetryRegister
               })
             }
           </div>
