@@ -25,7 +25,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
 
   function addElement(name){
     const defaultElement = defaultLayout.find(item => item.i === name);
-    const newElement = defaultElement ? { ...defaultElement, static: false } : { x: 0, y: 0, w: 6, h: 4, i: name, static: false, isResizable: true };
+    const newElement = defaultElement ? { ...defaultElement, static: false } : { x: 0, y: 0, w:3, h: 2, i: name, static: false, isResizable: true };
     setLayout([...layout, newElement])
   }
 
@@ -35,7 +35,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
     }
   }
 
-  useTaskBoard('localhost:8765', updateTelemetry)
+  useTaskBoard('192.168.1.53', updateTelemetry)
 
   function removeElement(name) {
     setLayout(layout.filter(item => item.i !== name));

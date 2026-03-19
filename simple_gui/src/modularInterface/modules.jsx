@@ -9,7 +9,10 @@ import Timer from "../components/Timer";
 import CloseButton from "../components/CloseButton";
 import TelemetryPlot from "../components/TelemetryPlot";
 
-const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry']
+const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON']
+const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
+const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', ...telemetryModules]
+
 
 const defaultLayout = [
     { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
@@ -26,7 +29,7 @@ const currentLayout = [
     { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
     { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
 	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
-	{ x: 0, y: 10, w: 3, h: 2, i: 'telemetry+system_status+cpu_usage', static: false, minW: 3, maxH:3, minH:2 },
+	{ x: 0, y: 10, w: 3, h: 2, i: 'telemetry+FADER', static: false, minW: 3, maxH:3, minH:2 },
 ]
 
 export { all_modules, defaultLayout, currentLayout, getNamedModule, getAddModule}
@@ -65,14 +68,30 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 			return (
 				<Timer ros={ros} paramClient={paramClient} name={'Execution Time'} onClick={onClose} toggleIsRunning={toggleIsRunning} />
 			)
-		case 'telemetry+system_status+cpu_usage':
-			return (
-				<TelemetryPlot name={'Telemetry 1'} onClick={onClose} telemetryUpdaters={telemetryUpdaters} data_type={'system_status'} field={'cpu_usage'}/>
-			)
 		default:
-			return (
-				<div>unknown {name} element</div>
-			)
+			if(name.includes('telemetry')){
+				var sensor = name.split('+')[1]
+				var min = 0
+				var max = 1
+				if(name.includes('TEMPERATURE')){
+					max = 70
+					min = 20
+				}
+				return (
+					<TelemetryPlot 
+						name={sensor.charAt(0) + sensor.substring(1).toLowerCase().replace(/_/g, ' ')} 
+						onClick={onClose} 
+						telemetryUpdaters={telemetryUpdaters} 
+						field={sensor}
+						min_show={min}
+						max_show={max}
+					/>
+				)
+			} else {
+				return (
+					<div>unknown {name} element</div>
+				)
+			}
 		}
 }
 
