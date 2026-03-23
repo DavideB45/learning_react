@@ -10,6 +10,7 @@ import RobotSetup from "./views/RobotSetup";
 import TaskSelector from './views/TaskSelector';
 import ThemeToggle from './components/ThemeToggle';
 import MainView from './views/MainView';
+import WaitPage from './views/WaitPage';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
@@ -26,6 +27,7 @@ function Navigation( {isRunning} ) {
 
   const links = [
     { label: 'Select', path: '/', color: 'violet' },
+    { label: 'Checks', path: '/check', color: 'violet' },
     { label: 'Tasks', path: '/list', color: 'violet' },
     { label: 'Robot', path: '/executing', color: 'cyan' },
   ];
@@ -58,7 +60,9 @@ function Navigation( {isRunning} ) {
 
 export default function All() {
 
-  const { ros, connected, paramClient, setViewSrv, taskStat } = useRos()
+  const [rosIP, setRosIP] = useState('')
+  const [boardIP, setBoardIP] = useState('')
+  const { ros, paramClient, setViewSrv } = useRos(rosIP)
   const [isRunning, setIsRunning] = useState(false)
 
   return (
@@ -81,7 +85,8 @@ export default function All() {
         </AppShell.Header>
         <AppShell.Main>
           <Routes>
-            <Route path="/" element={<RobotSetup />} />
+            <Route path="/" element={<RobotSetup onRosIP={setRosIP} rosIP={rosIP} onBoardIP={setBoardIP} boardIP={boardIP}/>} />
+            <Route path="/check" element={<WaitPage rosIP={rosIP} boardIP={boardIP}/>} />
             <Route
               path="/executing"
               element={
@@ -90,6 +95,7 @@ export default function All() {
                   setViewSrv={setViewSrv}
                   ros={ros}
                   toggleRunning={ () => setIsRunning(!isRunning)}
+                  boardIP={boardIP}
                 />
               }
             />
