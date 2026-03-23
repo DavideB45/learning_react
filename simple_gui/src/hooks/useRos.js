@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 
-export function useRos() {
+export function useRos(rosIP) {
   const [ros, setRos] = useState(null);
   const [connected, setConnected] = useState(false);
   const [setViewSrv, setSetVewSrv] = useState(null);
@@ -10,9 +10,13 @@ export function useRos() {
 
 
   useEffect(() => {
+		if(!isValidAddress(rosIP)){
+			console.log("Invalid ROS address:", rosIP);
+    		return;
+		}
 		// url: 'ws://192.168.64.3:9090'
 		var ros = new ROSLIB.Ros({
-			url: 'ws://localhost:9090'
+			url: 'ws://' + rosIP
 			//url: 'ws://192.168.64.3:9090'
 		});
 		ros.on('connection', function() {
@@ -47,7 +51,30 @@ export function useRos() {
 		return () => {
 			ros.close();
 		};
-	}, []);
+	}, [rosIP]);
 
   return { ros, connected, paramClient, setViewSrv};
 }
+
+export function isValidAddress(input) {
+  if (!input) return false;
+
+  const [host, port] = input.split(":");
+
+  if (!host || !port) return false;
+
+  // Validate port
+  const portNum = Number(port);
+  if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+    return false;
+  }
+
+  // Allow localhost
+  if (host === "localhost") return true;
+
+  // Validate IPv4
+  const ipv4Regex =
+    /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+
+  return ipv4Regex.test(host);
+};

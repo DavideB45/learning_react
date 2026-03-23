@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Container, Card, Stack, Select, Button, Title, Loader, Group, Alert, Image} from "@mantine/core";
+import { Container, Card, Stack, Select, TextInput, Button, Title, Loader, Group, Alert, Image} from "@mantine/core";
+import { isValidAddress } from "../hooks/useRos"
 
 const API_URL = "http://localhost:3001/api/config";
 
-function RobotSetup() {
+function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
   const [robotType, setRobotType] = useState("");
   const [algorithm, setAlgorithm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +18,8 @@ function RobotSetup() {
         const config = await response.json();
         setRobotType(config.robotType || "");
         setAlgorithm(config.algorithm || "");
+        onRosIP(config.rosIP || "");
+        onBoardIP(config.boardIP || "");
       } catch (error) {
         console.log("Could not load configuration:", error);
       } finally {
@@ -34,7 +37,7 @@ function RobotSetup() {
           await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ robotType, algorithm })
+            body: JSON.stringify({ robotType, algorithm, rosIP, boardIP })
           });
         } catch (error) {
           console.error("Failed to save configuration:", error);
@@ -42,9 +45,9 @@ function RobotSetup() {
       }
     }
     saveConfig();
-  }, [robotType, algorithm, isLoading]);
+  }, [robotType, algorithm, isLoading, rosIP, boardIP]);
 
-  const canExecute = robotType && algorithm;
+  const canExecute = robotType && algorithm && isValidAddress(boardIP) && isValidAddress(rosIP) ;
 
   if (isLoading) {
     return (
@@ -72,8 +75,6 @@ function RobotSetup() {
             <Select
               label="Robot Platform"
               placeholder="Select a robot"
-              searchable
-              clearable
               value={robotType}
               onChange={(value) => setRobotType(value || "")}
               data={[
@@ -98,8 +99,34 @@ function RobotSetup() {
               size="md"
             />
 
+            <TextInput
+              label="ROS Address"
+              placeholder="192.168.1.1:9090"
+              value={rosIP}
+              onChange={(event) => onRosIP(event.currentTarget.value) }
+              size="md"
+              error={
+                rosIP && !isValidAddress(rosIP)
+                  ? "Invalid format (expected: host:port)"
+                  : null
+              }
+            />
+
+            <TextInput
+              label="Task Board Address"
+              placeholder="192.168.1.1:9090"
+              value={boardIP}
+              onChange={(event) => onBoardIP(event.currentTarget.value) }
+              size="md"
+              error={
+                boardIP && !isValidAddress(boardIP)
+                  ? "Invalid format (expected: host:port)"
+                  : null
+              }
+            />
+
             {/* Info alert */}
-            {robotType && algorithm && (
+            {canExecute && (
               <Alert
                 title="Configuration Ready"
                 color="green"
@@ -111,7 +138,7 @@ function RobotSetup() {
 
             {/* Execute button */}
             <Group justify="flex-start" pt="lg">
-              <Link to="/list" style={{ textDecoration: "none" }}>
+              <Link to="/check" style={{ textDecoration: "none" }}>
                 <Button
                   disabled={!canExecute}
                   variant="gradient"

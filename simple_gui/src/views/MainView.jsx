@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GridLayout } from 'react-grid-layout';
@@ -13,7 +13,7 @@ import { useTaskBoard } from '../hooks/useTaskBoard';
 
 const telemetryRegister = {}
 
-function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
+function MainView({ paramClient, setViewSrv, ros, toggleRunning, boardIP }) {
   // Reshape the layout 
   const [layout, setLayout] = React.useState(currentLayout);
   let additionalModules = all_modules.filter(name => !layout.some(item => item.i === name))
@@ -35,7 +35,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning }) {
     }
   }
 
-  useTaskBoard('192.168.1.53', updateTelemetry)
+  useTaskBoard(boardIP, updateTelemetry)
 
   function removeElement(name) {
     setLayout(layout.filter(item => item.i !== name));
