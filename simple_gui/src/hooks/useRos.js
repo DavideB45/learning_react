@@ -3,7 +3,7 @@ import * as ROSLIB from "roslib";
 
 export function useRos(rosIP) {
   const [ros, setRos] = useState(null);
-  const [connected, setConnected] = useState(false);
+  const [status, setStatus] = useState('idle');
   const [setViewSrv, setSetVewSrv] = useState(null);
   const [paramClient, setParamClient] = useState(null)
 
@@ -12,6 +12,7 @@ export function useRos(rosIP) {
   useEffect(() => {
 		if(!isValidAddress(rosIP)){
 			console.log("Invalid ROS address:", rosIP);
+			setStatus("idle")
     		return;
 		}
 		// url: 'ws://192.168.64.3:9090'
@@ -21,14 +22,15 @@ export function useRos(rosIP) {
 		});
 		ros.on('connection', function() {
 			console.log('Connected to websocket server.');
+			setStatus("ready")
 		});
 		ros.on('error', function(error) {
 			console.log('Error connecting to websocket server: ', error);
-			setConnected(true);
+			setStatus('Error connecting to websocket server: '+ error);
 		});
 		ros.on("close", () => {
 			console.log("Disconnected from ROS");
-			setConnected(false);
+			setStatus("loading");
 		});
 		setRos(ros)
 
@@ -53,28 +55,28 @@ export function useRos(rosIP) {
 		};
 	}, [rosIP]);
 
-  return { ros, connected, paramClient, setViewSrv};
+  return { ros, status, paramClient, setViewSrv};
 }
 
-export function isValidAddress(input) {
-  if (!input) return false;
+export function isValidAddress(input, noPort=false) {
+	if (!input) return false;
 
-  const [host, port] = input.split(":");
+	const ipv4Regex =
+		/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
 
-  if (!host || !port) return false;
+	if(noPort){
+		const host = input
+		if (host === "localhost") return true;
+		return ipv4Regex.test(host);
+	} else {
+		const [host, port] = input.split(":");
 
-  // Validate port
-  const portNum = Number(port);
-  if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
-    return false;
-  }
-
-  // Allow localhost
-  if (host === "localhost") return true;
-
-  // Validate IPv4
-  const ipv4Regex =
-    /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
-
-  return ipv4Regex.test(host);
+		if (!host || !port) return false;
+		const portNum = Number(port);
+		if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+			return false;
+		}
+		if (host === "localhost") return true;
+		return ipv4Regex.test(host);
+	}
 };

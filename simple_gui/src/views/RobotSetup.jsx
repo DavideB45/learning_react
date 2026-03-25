@@ -47,7 +47,7 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
     saveConfig();
   }, [robotType, algorithm, isLoading, rosIP, boardIP]);
 
-  const canExecute = robotType && algorithm && isValidAddress(boardIP) && isValidAddress(rosIP) ;
+  const canExecute = robotType && algorithm && isValidAddress(boardIP, true) && isValidAddress(rosIP) ;
 
   if (isLoading) {
     return (
@@ -114,13 +114,13 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
 
             <TextInput
               label="Task Board Address"
-              placeholder="192.168.1.1:9090"
+              placeholder="192.168.1.1"
               value={boardIP}
               onChange={(event) => onBoardIP(event.currentTarget.value) }
               size="md"
               error={
-                boardIP && !isValidAddress(boardIP)
-                  ? "Invalid format (expected: host:port)"
+                boardIP && !isValidAddress(boardIP, true)
+                  ? "Invalid format (expected: host)"
                   : null
               }
             />

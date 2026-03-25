@@ -14,6 +14,7 @@ import WaitPage from './views/WaitPage';
 
 // Functions import
 import { useRos } from "./hooks/useRos";
+import { useTaskBoard } from './hooks/useTaskBoard';
 
 
 function Navigation( {isRunning} ) {
@@ -62,8 +63,10 @@ export default function All() {
 
   const [rosIP, setRosIP] = useState('')
   const [boardIP, setBoardIP] = useState('')
-  const { ros, paramClient, setViewSrv } = useRos(rosIP)
+  const { ros, status, paramClient, setViewSrv } = useRos(rosIP)
+  const { ws, boardStatus } = useTaskBoard(boardIP)
   const [isRunning, setIsRunning] = useState(false)
+  
 
   return (
     <BrowserRouter>
@@ -86,7 +89,7 @@ export default function All() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<RobotSetup onRosIP={setRosIP} rosIP={rosIP} onBoardIP={setBoardIP} boardIP={boardIP}/>} />
-            <Route path="/check" element={<WaitPage rosIP={rosIP} boardIP={boardIP}/>} />
+            <Route path="/check" element={<WaitPage rosIP={rosIP} boardIP={boardIP} rosStatus={status} boardStatus={boardStatus}/>} />
             <Route
               path="/executing"
               element={
@@ -95,7 +98,7 @@ export default function All() {
                   setViewSrv={setViewSrv}
                   ros={ros}
                   toggleRunning={ () => setIsRunning(!isRunning)}
-                  boardIP={boardIP}
+                  taskboard_ws={ws}
                 />
               }
             />

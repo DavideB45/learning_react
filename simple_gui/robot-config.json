@@ -2,5 +2,5 @@
   "robotType": "ur5",
   "algorithm": "v1",
   "rosIP": "localhost:9090",
-  "boardIP": "localhost:8765"
+  "boardIP": "192.168.1.53"
 }
