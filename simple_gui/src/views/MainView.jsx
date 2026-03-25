@@ -16,7 +16,6 @@ const telemetryRegister = {}
 function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws }) {
   // Reshape the layout 
   const [layout, setLayout] = React.useState(currentLayout);
-  console.log('MainView render - layout:', layout);
   const additionalModules = React.useMemo(() => {
     return all_modules.filter(name => !layout.some(item => item.i === name));
   }, [layout]);
