@@ -59,7 +59,7 @@ export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus }) {
           
           {/* Execute button */}
             <Group justify="flex-start" pt="lg">
-              <Link to="/check" style={{ textDecoration: "none" }}>
+              <Link to="/list" style={{ textDecoration: "none" }}>
                 <Button
                   disabled={!canExecute}
                   variant="gradient"

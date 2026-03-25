@@ -4,19 +4,22 @@ import "react-toastify/dist/ReactToastify.css";
 import { GridLayout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import { AddModule } from '../modularInterface/modules';
 
 import { useDisclosure } from '@mantine/hooks';
 import { Drawer, Button } from '@mantine/core';
 
-import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule } from '../modularInterface/modules';
-import { connectWebSocket } from '../hooks/useTaskBoard';
+import { defaultLayout, currentLayout, getNamedModule, all_modules } from '../modularInterface/modules';
 
 const telemetryRegister = {}
 
 function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws }) {
   // Reshape the layout 
   const [layout, setLayout] = React.useState(currentLayout);
-  let additionalModules = all_modules.filter(name => !layout.some(item => item.i === name))
+  console.log('MainView render - layout:', layout);
+  const additionalModules = React.useMemo(() => {
+    return all_modules.filter(name => !layout.some(item => item.i === name));
+  }, [layout]);
   // Reshape the window
   const [width, setWidth] = React.useState(window.innerWidth - 64);
   // show/hide the menu
@@ -69,13 +72,17 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
     <div style={{ padding: '16px', width: '100vw', height: '100vh' }}>
       <ToastContainer />
       <Drawer offset={8} radius="md" opened={opened} onClose={close} title="Additional Elements">
-        {
-          additionalModules.map((name) => (
-            <div key={name} style={{ marginBottom: '12px' }}>
-              {getAddModule(name, () => addElement(name))}
-            </div>
-          ))
-        }
+       {
+        additionalModules.map((name) => (
+          <div key={name} style={{ marginBottom: '12px' }}>
+            <AddModule 
+              name={name} 
+              addElement={addElement} 
+              layout={layout}
+            />
+          </div>
+        ))
+      }
       </Drawer>
       <Button variant="default" onClick={open}>
         Open Drawer

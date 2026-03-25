@@ -1,5 +1,5 @@
-import { Button, Card } from "@mantine/core";
-
+import { Button, Card, Modal, Select } from "@mantine/core";
+import { useState } from 'react';
 import ImageShower from "../components/ImageShower";
 import BoardStatus from "../components/BoardStatus";
 import APlot from '../components/APlot';
@@ -10,8 +10,8 @@ import CloseButton from "../components/CloseButton";
 import TelemetryPlot from "../components/TelemetryPlot";
 
 const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON']
-const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
-const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', ...telemetryModules]
+//const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
+const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry']
 
 
 const defaultLayout = [
@@ -32,7 +32,7 @@ const currentLayout = [
 	{ x: 0, y: 10, w: 3, h: 2, i: 'telemetry+FADER', static: false, minW: 3, maxH:3, minH:2 },
 ]
 
-export { all_modules, defaultLayout, currentLayout, getNamedModule, getAddModule}
+export { all_modules, defaultLayout, currentLayout, getNamedModule}
 
 function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRunning, telemetryUpdaters}) {
 	switch(name) {
@@ -95,15 +95,60 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 		}
 }
 
-function getAddModule(name, onClick){
+
+export function AddModule({name, addElement, layout}){
+
+	const [opened, setOpened] = useState(false);
+	const [selectedSensor, setSelectedSensor] = useState(null);
+
+	const usedSensors = layout
+		.filter(item => item.i.startsWith('telemetry+'))
+		.map(item => item.i.replace('telemetry+', ''));
+	const availableSensors = validSensors.filter(sensor => !usedSensors.includes(sensor));
+
+	const handleAddClick = () => {
+		if (name === "telemetry") {
+			setOpened(true);
+		} else {
+			addElement(name);
+		}
+	};
+
+	const handleConfirm = () => {
+		if (selectedSensor) {
+			addElement(`telemetry+${selectedSensor}`);
+			setSelectedSensor(null);
+			setOpened(false);
+		}
+	};
+
 	return (
+		<>
 		<Card shadow="sm" padding="lg" radius="md" withBorder>
 			<Card.Section withBorder inheritPadding py="md">
-				<h3 style={{ margin: 0 }}>{name}</h3>
+			<h3 style={{ margin: 0 }}>{name}</h3>
 			</Card.Section>
 			<Card.Section inheritPadding py="md">
-				<Button onClick={onClick} fullWidth>ADD</Button>
+			<Button 
+				onClick={handleAddClick} 
+				fullWidth
+				disabled={name === "telemetry" && availableSensors.length === 0}
+			> 
+				ADD
+			</Button>
 			</Card.Section>
 		</Card>
+
+		<Modal opened={opened} onClose={() => setOpened(false)} title="Select Sensor" centered>
+			<Select label="Sensor Type" placeholder="Choose a sensor" 
+				data={availableSensors} value={selectedSensor}
+				onChange={setSelectedSensor} searchable clearable
+			/>
+			<Button onClick={handleConfirm} fullWidth mt="md" disabled={!selectedSensor} >
+				Confirm
+			</Button>
+		</Modal>
+		</>
+
 	)
 }
