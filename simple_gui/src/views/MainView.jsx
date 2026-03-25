@@ -9,11 +9,11 @@ import { useDisclosure } from '@mantine/hooks';
 import { Drawer, Button } from '@mantine/core';
 
 import { defaultLayout, currentLayout, getNamedModule, all_modules, getAddModule } from '../modularInterface/modules';
-import { useTaskBoard } from '../hooks/useTaskBoard';
+import { connectWebSocket } from '../hooks/useTaskBoard';
 
 const telemetryRegister = {}
 
-function MainView({ paramClient, setViewSrv, ros, toggleRunning, boardIP }) {
+function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws }) {
   // Reshape the layout 
   const [layout, setLayout] = React.useState(currentLayout);
   let additionalModules = all_modules.filter(name => !layout.some(item => item.i === name))
@@ -34,8 +34,19 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, boardIP }) {
       telemetryRegister[key](json_data)
     }
   }
-
-  useTaskBoard(boardIP, updateTelemetry)
+  
+  useEffect(() => {
+    if(!taskboard_ws) return;
+    taskboard_ws.onmessage = function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        updateTelemetry(data)
+      } catch (error) {
+        console.error('Error parsing WebSocket data:', error);
+      }
+    };
+  }, [taskboard_ws])
+  
 
   function removeElement(name) {
     setLayout(layout.filter(item => item.i !== name));

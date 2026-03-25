@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Stack, Text, Loader, ThemeIcon, Group } from "@mantine/core";
+import { Container, Card, Stack, Text, Loader, ThemeIcon, Group, Button } from "@mantine/core";
 import { IconCheck, IconX, IconClock } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 function StatusItem({ label, status }) {
   let icon;
@@ -30,30 +31,8 @@ function StatusItem({ label, status }) {
   );
 }
 
-export default function WaitPage({ rosIP, boardIP }) {
-  const [rosStatus, setRosStatus] = useState("idle");
-  const [boardStatus, setBoardStatus] = useState("idle");
+export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus }) {
   const [robotStatus, setRobotStatus] = useState("idle");
-
-  useEffect(() => {
-    if (!rosIP) return;
-    setRosStatus("loading");
-
-    // TODO: replace with your logic
-    setTimeout(() => {
-      setRosStatus("ready"); // or "error"
-    }, 1000);
-  }, [rosIP]);
-
-  useEffect(() => {
-    if (!boardIP) return;
-    setBoardStatus("loading");
-
-    // TODO: replace with your logic
-    setTimeout(() => {
-      setBoardStatus("ready");
-    }, 1200);
-  }, [boardIP]);
 
   useEffect(() => {
     setRobotStatus("loading");
@@ -63,6 +42,8 @@ export default function WaitPage({ rosIP, boardIP }) {
       setRobotStatus("ready");
     }, 1500);
   }, []);
+
+  const canExecute = rosStatus === "ready" && boardStatus === "ready" && robotStatus === "ready"
 
   return (
     <Container size="sm" mt="xl">
@@ -75,6 +56,22 @@ export default function WaitPage({ rosIP, boardIP }) {
           <StatusItem label={`ROS (${rosIP || "not set"})`} status={rosStatus} />
           <StatusItem label={`Board (${boardIP || "not set"})`} status={boardStatus} />
           <StatusItem label="Robot Connection" status={robotStatus} />
+          
+          {/* Execute button */}
+            <Group justify="flex-start" pt="lg">
+              <Link to="/check" style={{ textDecoration: "none" }}>
+                <Button
+                  disabled={!canExecute}
+                  variant="gradient"
+                  gradient={{ from: 'green', to: 'teal', deg: 90 }}
+                  size="lg"
+                  radius="md"
+                  fw={600}
+                >
+                  Continue
+                </Button>
+              </Link>
+            </Group>
         </Stack>
       </Card>
     </Container>
