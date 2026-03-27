@@ -9,13 +9,20 @@ import { AddModule } from '../modularInterface/modules';
 import { useDisclosure } from '@mantine/hooks';
 import { Drawer, Button } from '@mantine/core';
 
-import { defaultLayout, currentLayout, getNamedModule, all_modules } from '../modularInterface/modules';
+import { defaultLayout, getNamedModule, all_modules } from '../modularInterface/modules';
 
 const telemetryRegister = {}
 
 function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws }) {
+  const getInitialLayout = () => {
+    const saved = localStorage.getItem('layout');
+    return saved ? JSON.parse(saved) : defaultLayout;
+  };
+  const saveLayout = (layout) => {
+    localStorage.setItem('layout', JSON.stringify(layout));
+  };
   // Reshape the layout 
-  const [layout, setLayout] = React.useState(currentLayout);
+  const [layout, setLayout] = React.useState(getInitialLayout());
   const additionalModules = React.useMemo(() => {
     return all_modules.filter(name => !layout.some(item => item.i === name));
   }, [layout]);
@@ -65,6 +72,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
 
   const handleLayoutChange = (newLayout) => {
     setLayout(newLayout);
+    saveLayout(layout)
   };
 
   return (

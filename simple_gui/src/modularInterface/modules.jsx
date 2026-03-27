@@ -23,16 +23,7 @@ const defaultLayout = [
 	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
 ];
 
-const currentLayout = [
-	{ x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
-    { x: 0, y: 6, w: 6, h: 2, i: 'boardStatus', static: false, minH:2 },
-    { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
-    { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
-	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
-	{ x: 0, y: 10, w: 3, h: 2, i: 'telemetry+FADER', static: false, minW: 3, maxH:3, minH:2 },
-]
-
-export { all_modules, defaultLayout, currentLayout, getNamedModule}
+export { all_modules, defaultLayout, getNamedModule}
 
 function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRunning, telemetryUpdaters}) {
 	switch(name) {
