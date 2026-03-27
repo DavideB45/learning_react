@@ -4,6 +4,7 @@ import "./toast.css";
 import { AppShell, Container, Button, Group, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useState } from "react"
+import { IconExternalLink } from '@tabler/icons-react';
 
 // Components import
 import RobotSetup from "./views/RobotSetup";
@@ -17,7 +18,7 @@ import { useRos } from "./hooks/useRos";
 import { useTaskBoard } from './hooks/useTaskBoard';
 
 
-function Navigation( {isRunning} ) {
+function Navigation( {isRunning, taskboardIP} ) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,6 +32,7 @@ function Navigation( {isRunning} ) {
     { label: 'Checks', path: '/check', color: 'violet' },
     { label: 'Tasks', path: '/list', color: 'violet' },
     { label: 'Robot', path: '/executing', color: 'cyan' },
+    { label: 'Board', url: "http://" + taskboardIP, color: 'cyan', external: true  },
   ];
 
   return (
@@ -45,9 +47,14 @@ function Navigation( {isRunning} ) {
           <Button
             variant={location.pathname === link.path ? 'filled' : 'light'}
             color={link.color}
-            onClick={() => navigate(link.path)}
+            onClick={() => {if (link.external) {
+                  window.open(link.url, '_blank');
+                } else {
+                  navigate(link.path);
+                }}}
             size="md"
             disabled={isRunning}
+            rightSection={link.external ? <IconExternalLink size={16} /> : null}
           >
             {link.label}
           </Button>
@@ -81,7 +88,7 @@ export default function All() {
         <AppShell.Header withBorder>
           <Container size="xl" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
             <Group gap='lg'>
-              <Navigation isRunning={isRunning}/>
+              <Navigation isRunning={isRunning} taskboardIP={boardIP}/>
               <ThemeToggle />
             </Group>
           </Container>

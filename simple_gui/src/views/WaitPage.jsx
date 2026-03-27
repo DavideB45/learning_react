@@ -37,7 +37,7 @@ export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus }) {
   useEffect(() => {
     setRobotStatus("loading");
 
-    // TODO: replace with your logic
+    // TODO: replace with correct logic
     setTimeout(() => {
       setRobotStatus("ready");
     }, 1500);
