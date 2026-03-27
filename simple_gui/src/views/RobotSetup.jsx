@@ -62,7 +62,9 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
   return (
     <Container size="md" py="xl">
       <Group>
-      <Card shadow="lg" padding="xl" radius="md" withBorder style={{ flex: 1 }}>
+      <Card shadow="none" padding="xl" radius="md" style={{ flex: 1, backgroundColor: 'transparent'}}>
+        <Stack gap="md">
+        <Card shadow="lg" padding="xl" radius="md" withBorder style={{ flex: 1 }}>
         <Card.Section withBorder inheritPadding py="md">
           <Title order={1} size="h2">
             Robot Setup
@@ -84,6 +86,31 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
               size="md"
             />
 
+            <TextInput
+              label="ROS Address"
+              placeholder="192.168.1.1:9090"
+              value={rosIP}
+              onChange={(event) => onRosIP(event.currentTarget.value) }
+              size="md"
+              error={
+                rosIP && !isValidAddress(rosIP)
+                  ? "Invalid format (expected: host:port)"
+                  : null
+              }
+            />
+            </Stack>
+            </Card.Section>
+            {/* </Card>
+
+            <Card shadow="lg" padding="xl" radius="md" withBorder style={{ flex: 1 }}> */}
+            <Card.Section inheritPadding py="xl">
+              <Stack gap="lg">
+            <Card.Section withBorder inheritPadding py="md">
+              <Title order={1} size="h2">
+                Board Setup
+              </Title>
+            </Card.Section>
+
             {/* Algorithm selection */}
             <Select
               label="Task board"
@@ -97,19 +124,6 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
                 { value: "v1", label: "Task board V1.0" },
               ]}
               size="md"
-            />
-
-            <TextInput
-              label="ROS Address"
-              placeholder="192.168.1.1:9090"
-              value={rosIP}
-              onChange={(event) => onRosIP(event.currentTarget.value) }
-              size="md"
-              error={
-                rosIP && !isValidAddress(rosIP)
-                  ? "Invalid format (expected: host:port)"
-                  : null
-              }
             />
 
             <TextInput
@@ -153,6 +167,8 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
             </Group>
           </Stack>
         </Card.Section>
+        </Card>
+        </Stack>
       </Card>
       <Card shadow="lg" padding="xl" radius="md">
         <Image
