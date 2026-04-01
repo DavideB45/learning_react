@@ -12,14 +12,18 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
 
   // Load saved configuration on mount
   useEffect(() => {
-    async function loadConfig() {
+    function loadConfig() {
       try {
-        const response = await fetch(API_URL);
-        const config = await response.json();
-        setRobotType(config.robotType || "");
-        setAlgorithm(config.algorithm || "");
-        onRosIP(config.rosIP || "");
-        onBoardIP(config.boardIP || "");
+        const storedConfig = localStorage.getItem("appConfig");
+
+        if (storedConfig) {
+          const config = JSON.parse(storedConfig);
+
+          setRobotType(config.robotType || "");
+          setAlgorithm(config.algorithm || "");
+          onRosIP(config.rosIP || "");
+          onBoardIP(config.boardIP || "");
+        }
       } catch (error) {
         console.log("Could not load configuration:", error);
       } finally {
@@ -31,21 +35,26 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
 
   // Save configuration whenever it changes
   useEffect(() => {
-    async function saveConfig() {
-      if (!isLoading && (robotType || algorithm)) {
+    function saveConfig() {
+      if (!isLoading) {
         try {
-          await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ robotType, algorithm, rosIP, boardIP })
-          });
+          if (!algorithm)
+            setAlgorithm('v1')
+          const config = {
+            robotType,
+            algorithm,
+            rosIP,
+            boardIP,
+          };
+
+          localStorage.setItem("appConfig", JSON.stringify(config));
         } catch (error) {
           console.error("Failed to save configuration:", error);
         }
       }
     }
     saveConfig();
-  }, [robotType, algorithm, isLoading, rosIP, boardIP]);
+  }, [robotType, algorithm, rosIP, boardIP, isLoading]);
 
   const canExecute = robotType && algorithm && isValidAddress(boardIP, true) && isValidAddress(rosIP) ;
 
@@ -119,6 +128,7 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
               clearable
               value={algorithm}
               disabled={true}
+              defaultValue={"v1"}
               onChange={(value) => setAlgorithm(value || "")}
               data={[
                 { value: "v1", label: "Task board V1.0" },
