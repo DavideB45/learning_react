@@ -8,10 +8,11 @@ import ViewButtons from '../components/ViewButtons';
 import Timer from "../components/Timer";
 import CloseButton from "../components/CloseButton";
 import TelemetryPlot from "../components/TelemetryPlot";
+import { ChatToBaby } from "./chat";
 
 const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON']
 //const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
-const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry']
+const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry', 'chat']
 
 
 const defaultLayout = [
@@ -58,6 +59,10 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 		case 'timer':
 			return (
 				<Timer ros={ros} paramClient={paramClient} name={'Execution Time'} onClick={onClose} toggleIsRunning={toggleIsRunning} />
+			)
+		case 'chat':
+			return (
+				<ChatToBaby />
 			)
 		default:
 			if(name.includes('telemetry')){
