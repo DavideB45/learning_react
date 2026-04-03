@@ -1,17 +1,33 @@
-import { Button, Container } from "@mantine/core"
-import { useState } from "react"
+import { ActionIcon, Container, Card, Box, ScrollArea, Group, Textarea, Flex } from "@mantine/core"
+import { useState, useRef, useEffect } from "react"
 import ReactMarkdown, { Components } from "react-markdown"
+import TitleTile from "../components/TitleTile"
+import { IconSend } from "@tabler/icons-react"
 
-
-function Message() {
-
+function Message({ children, isUser }) {
+	return (
+		<Container>
+			{children}
+		</Container>
+	)
 }
 
-function MessageContent() {
-	
+function MessageContent({ children, isUser }) {
+  return (
+    <Card padding={0} radius='lg' maw="80%" ml={isUser ? 'auto' : 0} mb='sm' mt='sm'>
+    <Box
+      bg={isUser ? 'green.6' : 'gray.1'}  p="md"
+      style={{ color: isUser ? 'white' : 'var(--mantine-color-gray-9)',}}
+    >
+      {children}
+    </Box>
+    </Card>
+  )
 }
 
-export function ChatToBaby() {
+export function ChatToBaby({name, onClick}) {
+  const viewport = useRef(null);
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -38,7 +54,6 @@ export function ChatToBaby() {
   ])
 
   const addMessage = () => {
-    // Add a new message
     setMessages([
       ...messages,
       {
@@ -53,50 +68,54 @@ export function ChatToBaby() {
     ])
   }
 
+  useEffect(
+    () => viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' }),
+    [messages]
+  )
   return (
-    <div className="flex h-[400px] w-full flex-col overflow-hidden">
-      <div className="flex items-center justify-between border-b p-3">
-        <div />
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={addMessage}>
-            Add Message
-          </Button>
-        </div>
-      </div>
-
-      <Container className="flex-1">
+	<Card
+		  shadow="sm" padding="lg" radius="md" withBorder
+		  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+		>
+      <TitleTile text={name} onClick={onClick} />
+      <ScrollArea viewportRef={viewport} style={{ flex: 1, minHeight: 0 }}>
           {messages.map((message) => {
             const isAssistant = message.role === "assistant"
 
             return (
-              <Message
-                key={message.id}
-                className={
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }
-              >
-                {isAssistant && (
-                  <MessageAvatar
-                    src="/avatars/ai.png"
-                    alt="AI Assistant"
-                    fallback="AI"
-                  />
-                )}
-                <div className="max-w-[85%] flex-1 sm:max-w-[75%]">
+              <Message key={message.id} isUser={!isAssistant} padding='md'>
                   {isAssistant ? (
-                    <div className="bg-secondary text-foreground prose rounded-lg p-2">
+                    <MessageContent isUser={!isAssistant}>
                       <ReactMarkdown>{message.content}</ReactMarkdown>
-                    </div>
+                    </MessageContent>
                   ) : (
-                    <MessageContent className="bg-primary text-primary-foreground">
+                    <MessageContent isUser={!isAssistant}>
                       {message.content}
                     </MessageContent>
                   )}
-                </div>
               </Message>
             )
           })}
-      </Container>
-    </div>
+      </ScrollArea>
+
+      {/* Add message / footer */}
+      <Flex gap='md' align="flex-end">
+        <Textarea
+          placeholder="Message..."
+          autoFocus minRows={2} maxRows={6} radius="md" autosize
+          style={{ flex:1 }}
+          size="lg"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              addMessage();
+            }
+          }}
+        />
+        <ActionIcon size="36" radius="md" onClick={addMessage}>
+          <IconSend size={20} />
+        </ActionIcon>
+      </Flex>
+	</Card>
   )
 }

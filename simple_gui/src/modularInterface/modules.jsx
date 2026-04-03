@@ -62,7 +62,7 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 			)
 		case 'chat':
 			return (
-				<ChatToBaby />
+				<ChatToBaby name={'FrankChat'} onClick={onClose}/>
 			)
 		default:
 			if(name.includes('telemetry')){
