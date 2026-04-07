@@ -25,6 +25,8 @@ function APlot({ ros, paramClient, name, onClick }) {
         ],
       },
       options: {
+        responsive: true,
+				maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
