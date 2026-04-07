@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import ReactMarkdown, { Components } from "react-markdown"
 import TitleTile from "../components/TitleTile"
 import { IconSend } from "@tabler/icons-react"
+import * as ROSLIB from "roslib";
 
 function Message({ children, isUser }) {
 	return (
@@ -16,7 +17,7 @@ function MessageContent({ children, isUser }) {
   return (
     <Card padding={0} radius='lg' maw="80%" ml={isUser ? 'auto' : 0} mb='sm' mt='sm'>
     <Box
-      bg={isUser ? 'green.6' : 'gray.1'}  p="md"
+      bg={isUser ? 'yellow.6' : 'gray.1'}  p="md"
       style={{ color: isUser ? 'white' : 'var(--mantine-color-gray-9)',}}
     >
       {children}
@@ -25,53 +26,78 @@ function MessageContent({ children, isUser }) {
   )
 }
 
-export function ChatToBaby({name, onClick}) {
+export function ChatToBaby({name, onClick, ros}) {
+  const [input, setInput] = useState("");
+  const [lastAnswer, setLastAnswer] = useState('')
+  const [messages, setMessages] = useState([])
+  const [isStreaming, setIsStreaming] = useState(false);
   const viewport = useRef(null);
+  const [askService, setAskService] = useState(null);
+  const [chunkListener, setChunkListener] = useState(null)
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: "user",
-      content: "Hello! Can you help me with a coding question?",
-    },
-    {
-      id: 2,
-      role: "assistant",
-      content:
-        "Of course! I'd be happy to help with your coding question. What would you like to know?",
-    },
-    {
-      id: 3,
-      role: "user",
-      content: "How do I create a responsive layout with CSS Grid?",
-    },
-    {
-      id: 4,
-      role: "assistant",
-      content:
-        "Creating a responsive layout with CSS Grid is straightforward. Here's a basic example:\n\n```css\n.container {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));\n  gap: 1rem;\n}\n```\n\nThis creates a grid where:\n- Columns automatically fit as many as possible\n- Each column is at least 250px wide\n- Columns expand to fill available space\n- There's a 1rem gap between items\n\nWould you like me to explain more about how this works?",
-    },
-  ])
+  useEffect(() => {
+  
+    if(!ros) return;
+  
+    var askService = new ROSLIB.Service({
+      ros: ros,
+      name: '/web_chat/ask_gemma',
+      serviceType: 'simple_server/srv/SetString'
+    })
+    setAskService(askService)
+    askService.callService({data:''}, (result) => {});
 
-  const addMessage = () => {
+    const listener = new ROSLIB.Topic({
+      ros: ros,
+      name: '/web_chat/chunks',
+      messageType: 'std_msgs/String'
+    });
+    listener.subscribe((message) => {
+      const data = JSON.parse(message.data);
+      setLastAnswer((prev) => prev + data.chunk);
+      console.log(data)
+      if (data.done) {
+        setIsStreaming(false);
+      }
+    });
+    setChunkListener(chunkListener)
+  
+    return () => {
+      listener.unsubscribe();
+    }
+    }, [ros]);
+
+  const addMessage = (userMessage) => {
+    // TODO: disattivare la casella di testo (o la possibilità di fare invio)
+    if (!userMessage.trim()) return;
+    setIsStreaming(true);
     setMessages([
       ...messages,
       {
         id: messages.length + 1,
-        role:
-          messages[messages.length - 1].role === "user" ? "assistant" : "user",
-        content:
-          messages[messages.length - 1].role === "user"
-            ? "That's a great question! Let me explain further. CSS Grid is a powerful layout system that allows for two-dimensional layouts. The `minmax()` function is particularly useful as it sets a minimum and maximum size for grid tracks."
-            : "Thanks for the explanation! Could you tell me more about grid areas?",
+        role: "assistant",
+        content: lastAnswer
       },
+      {
+        id: messages.length + 2,
+        role: "user",
+        content: userMessage
+      }
     ])
+    setLastAnswer("")
+
+    askService.callService({ data: userMessage }, (result) => {
+      if(! result.success) {
+        setLastAnswer("There has been an error in the answer generation")
+      }
+    });
   }
 
   useEffect(
     () => viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' }),
-    [messages]
+    [messages, lastAnswer]
   )
+
   return (
 	<Card
 		  shadow="sm" padding="lg" radius="md" withBorder
@@ -85,9 +111,9 @@ export function ChatToBaby({name, onClick}) {
             return (
               <Message key={message.id} isUser={!isAssistant} padding='md'>
                   {isAssistant ? (
-                    <MessageContent isUser={!isAssistant}>
-                      <ReactMarkdown>{message.content}</ReactMarkdown>
-                    </MessageContent>
+                      message.content !== '' && <MessageContent isUser={!isAssistant}>
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </MessageContent>
                   ) : (
                     <MessageContent isUser={!isAssistant}>
                       {message.content}
@@ -96,6 +122,13 @@ export function ChatToBaby({name, onClick}) {
               </Message>
             )
           })}
+          {lastAnswer !== '' && (
+            <Message key="streaming" isUser={false} padding='md'>
+              <MessageContent isUser={false}>
+                <ReactMarkdown>{lastAnswer}</ReactMarkdown>
+              </MessageContent>
+            </Message>
+          )}
       </ScrollArea>
 
       {/* Add message / footer */}
@@ -105,14 +138,18 @@ export function ChatToBaby({name, onClick}) {
           autoFocus minRows={2} maxRows={6} radius="md" autosize
           style={{ flex:1 }}
           size="lg"
+          value={input}
+          disabled={isStreaming}
+          onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              addMessage();
+              addMessage(input);
+              setInput("");
             }
           }}
         />
-        <ActionIcon size="36" radius="md" onClick={addMessage}>
+        <ActionIcon size="36" radius="md" onClick={addMessage} disabled={isStreaming}>
           <IconSend size={20} />
         </ActionIcon>
       </Flex>
