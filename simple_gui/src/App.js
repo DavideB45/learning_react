@@ -70,7 +70,7 @@ export default function All() {
 
   const [rosIP, setRosIP] = useState('')
   const [boardIP, setBoardIP] = useState('')
-  const { ros, status, paramClient, setViewSrv } = useRos(rosIP)
+  const { ros, status, paramClient, setViewSrv, retryRos } = useRos(rosIP)
   const { ws, boardStatus, retryBoard } = useTaskBoard(boardIP)
   const [isRunning, setIsRunning] = useState(false)
   
@@ -100,7 +100,7 @@ export default function All() {
               <WaitPage 
                 rosIP={rosIP} boardIP={boardIP}
                 rosStatus={status} boardStatus={boardStatus}
-                reloadROS={() => setRosIP(rosIP)} reloadBoard={() => {retryBoard()}}
+                reloadROS={retryRos} reloadBoard={retryBoard}
               />} />
             <Route
               path="/executing"

@@ -12,9 +12,9 @@ function Message({ children, isUser }) {
 		</Container>
 	)
 }
-
+// (MADE BY GEMINI)
 const markdownComponents = {
-  // Styles the block containing the code (MADE BY GEMINI)
+  // Styles the block containing the code
   pre: ({ node, ...props }) => (
     <pre
       style={{

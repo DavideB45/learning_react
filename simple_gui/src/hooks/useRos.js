@@ -2,60 +2,68 @@ import { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 
 export function useRos(rosIP) {
-  const [ros, setRos] = useState(null);
-  const [status, setStatus] = useState('idle');
-  const [setViewSrv, setSetVewSrv] = useState(null);
-  const [paramClient, setParamClient] = useState(null)
+	const [ros, setRos] = useState(null);
+	const [status, setStatus] = useState('idle');
+	const [setViewSrv, setSetVewSrv] = useState(null);
+	const [paramClient, setParamClient] = useState(null);
 
-
-
-  useEffect(() => {
-		if(!isValidAddress(rosIP)){
+	const connect = () => {
+		if (!isValidAddress(rosIP)) {
 			console.log("Invalid ROS address:", rosIP);
-			setStatus("idle")
-    		return;
+			setStatus("idle");
+			return;
 		}
-		// url: 'ws://192.168.64.3:9090'
-		var ros = new ROSLIB.Ros({
+
+		setStatus("loading");
+		const rosInstance = new ROSLIB.Ros({
 			url: 'ws://' + rosIP
-			//url: 'ws://192.168.64.3:9090'
 		});
-		ros.on('connection', function() {
+		rosInstance.on('connection', () => {
 			console.log('Connected to websocket server.');
-			setStatus("ready")
+			setStatus("ready");
 		});
-		ros.on('error', function(error) {
+		rosInstance.on('error', (error) => {
 			console.log('Error connecting to websocket server: ', error);
-			setStatus('Error connecting to websocket server: '+ error);
+			setStatus("error");
 		});
-		ros.on("close", () => {
+		rosInstance.on('close', () => {
 			console.log("Disconnected from ROS");
-			setStatus("loading");
+			setStatus("error");
 		});
-		setRos(ros)
 
-		var paramCl = new ROSLIB.Service({
-				ros: ros,
-				name: '/config_node/get_parameters',
-				serviceType: 'rcl_interfaces/srv/GetParameters'
-			}
-		)
-		setParamClient(paramCl)
+		setRos(rosInstance);
 
-		// Service to change camera
-		var setViewService = new ROSLIB.Service({
-			ros: ros,
+		const paramCl = new ROSLIB.Service({
+			ros: rosInstance,
+			name: '/config_node/get_parameters',
+			serviceType: 'rcl_interfaces/srv/GetParameters'
+		});
+		setParamClient(paramCl);
+
+		const setViewService = new ROSLIB.Service({
+			ros: rosInstance,
 			name: '/set_view',
 			serviceType: 'simple_server/srv/SetInt'
-		})
-		setSetVewSrv(setViewService)
+		});
+		setSetVewSrv(setViewService);
+
+		return rosInstance;
+	};
+
+	useEffect(() => {
+		const rosInstance = connect();
 
 		return () => {
-			ros.close();
+			if (rosInstance) rosInstance.close();
 		};
 	}, [rosIP]);
 
-  return { ros, status, paramClient, setViewSrv};
+	const retryRos = () => {
+		if (ros) ros.close(); // clean previous connection
+		connect();
+	};
+
+  	return { ros, status, paramClient, setViewSrv, retryRos };
 }
 
 export function isValidAddress(input, noPort=false) {
