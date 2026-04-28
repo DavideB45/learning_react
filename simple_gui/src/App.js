@@ -71,7 +71,7 @@ export default function All() {
   const [rosIP, setRosIP] = useState('')
   const [boardIP, setBoardIP] = useState('')
   const { ros, status, paramClient, setViewSrv } = useRos(rosIP)
-  const { ws, boardStatus } = useTaskBoard(boardIP)
+  const { ws, boardStatus, retryBoard } = useTaskBoard(boardIP)
   const [isRunning, setIsRunning] = useState(false)
   
 
@@ -96,7 +96,12 @@ export default function All() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<RobotSetup onRosIP={setRosIP} rosIP={rosIP} onBoardIP={setBoardIP} boardIP={boardIP}/>} />
-            <Route path="/check" element={<WaitPage rosIP={rosIP} boardIP={boardIP} rosStatus={status} boardStatus={boardStatus}/>} />
+            <Route path="/check" element={
+              <WaitPage 
+                rosIP={rosIP} boardIP={boardIP}
+                rosStatus={status} boardStatus={boardStatus}
+                reloadROS={() => setRosIP(rosIP)} reloadBoard={() => {retryBoard()}}
+              />} />
             <Route
               path="/executing"
               element={

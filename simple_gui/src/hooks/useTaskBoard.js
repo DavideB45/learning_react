@@ -6,6 +6,17 @@ export function connectWebSocket(deviceIP, onRetry, setBoardStatus) {
     const taskboard_ws_url = deviceIP ? "ws://" + deviceIP + "/ws" : '/ws';
     const taskboard_ws = new WebSocket(taskboard_ws_url);
     
+    let didConnect = false;
+
+    // sometimes the onerror is not called so this part of code is needed DX
+    const timeout = setTimeout(() => {
+      if (!didConnect) {
+        console.warn("WebSocket connection timeout");
+        setBoardStatus("error");
+        taskboard_ws.close();
+      }
+    }, 5000);
+
     taskboard_ws.onclose = (event) => {
       console.warn("WebSocket closed.", event);
       setBoardStatus("error")
@@ -33,18 +44,26 @@ export function useTaskBoard(deviceIP) {
   const [boardStatus, setBoardStatus] = useState('idle');
   const [ws, setWs] = useState(null)
 
+  const connect = () => {
+    if (!deviceIP) return;
+
+    const retry = () => {
+      connectWebSocket(deviceIP, retry, setBoardStatus);
+    };
+
+    const newWs = connectWebSocket(deviceIP, retry, setBoardStatus);
+    setWs(newWs);
+  };
+  
   useEffect( () => {
+    console.log(deviceIP)
     if (!deviceIP) {
       setBoardStatus('idle');
       return;
     }
 
-    const retry = () => {
-      connectWebSocket(deviceIP, retry, setBoardStatus);
-    };
-    
-    const newWs = connectWebSocket(deviceIP, retry, setBoardStatus);
-    setWs(newWs)
+    connect()
+
     return () => {
       if (ws) {
         ws.close();
@@ -52,5 +71,5 @@ export function useTaskBoard(deviceIP) {
     };
   }, [deviceIP]);
 
-  return { ws, boardStatus }
+  return { ws, boardStatus, retryBoard: connect }
 }

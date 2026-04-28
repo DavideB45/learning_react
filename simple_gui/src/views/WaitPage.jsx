@@ -3,7 +3,7 @@ import { Container, Card, Stack, Text, Loader, ThemeIcon, Group, Button } from "
 import { IconCheck, IconX, IconClock } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
-function StatusItem({ label, status }) {
+function StatusItem({ label, status, onRetry }) {
   let icon;
   let color;
 
@@ -22,16 +22,24 @@ function StatusItem({ label, status }) {
   }
 
   return (
-    <Group>
-      <ThemeIcon color={color} variant="light">
-        {icon}
-      </ThemeIcon>
-      <Text>{label}</Text>
+    <Group justify="space-between">
+      <Group>
+        <ThemeIcon color={color} variant="light">
+          {icon}
+        </ThemeIcon>
+        <Text>{label}</Text>
+      </Group>
+
+      {status === "error" && (
+        <Button size="xs" variant="light" color="red" onClick={onRetry}>
+          Retry
+        </Button>
+      )}
     </Group>
   );
 }
 
-export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus }) {
+export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus, reloadROS, reloadBoard }) {
   const [robotStatus, setRobotStatus] = useState("idle");
 
   useEffect(() => {
@@ -53,8 +61,8 @@ export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus }) {
             System Status
           </Text>
 
-          <StatusItem label={`ROS (${rosIP || "not set"})`} status={rosStatus} />
-          <StatusItem label={`Board (${boardIP || "not set"})`} status={boardStatus} />
+          <StatusItem label={`ROS (${rosIP || "not set"})`} status={rosStatus} onRetry={reloadROS}/>
+          <StatusItem label={`Board (${boardIP || "not set"})`} status={boardStatus} onRetry={reloadBoard}/>
           <StatusItem label="Robot Connection" status={robotStatus} />
           
           {/* Execute button */}
