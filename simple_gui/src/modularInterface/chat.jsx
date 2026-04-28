@@ -13,6 +13,37 @@ function Message({ children, isUser }) {
 	)
 }
 
+const markdownComponents = {
+  // Styles the block containing the code (MADE BY GEMINI)
+  pre: ({ node, ...props }) => (
+    <pre
+      style={{
+        whiteSpace: 'pre-wrap',       // This is the magic line that forces wrapping!
+        wordBreak: 'break-word',      // Ensures long unbroken strings don't overflow
+        backgroundColor: '#dee2e6',   // A slightly darker gray (Mantine gray.3) to stand out from gray.1
+        padding: '12px',
+        borderRadius: '8px',
+        margin: '10px 0',
+        fontFamily: 'monospace',
+        fontSize: '0.9em'
+      }}
+      {...props}
+    />
+  ),
+  // Styles the text inside the block, or inline code snippets
+  code: ({ node, inline, ...props }) => (
+    <code
+      style={{
+        backgroundColor: inline ? '#dee2e6' : 'transparent', // Only add bg if it's inline like `this`
+        padding: inline ? '2px 6px' : '0',
+        borderRadius: inline ? '4px' : '0',
+        fontFamily: 'monospace',
+      }}
+      {...props}
+    />
+  ),
+};
+
 function MessageContent({ children, isUser }) {
   return (
     <Card padding={0} radius='lg' maw="80%" ml={isUser ? 'auto' : 0} mb='sm' mt='sm'>
@@ -32,38 +63,22 @@ export function ChatToBaby({name, onClick, ros}) {
   const [messages, setMessages] = useState([])
   const [isStreaming, setIsStreaming] = useState(false);
   const viewport = useRef(null);
-  const [askService, setAskService] = useState(null);
-  const [chunkListener, setChunkListener] = useState(null)
+  const [askAction, setAskAction] = useState(null);
 
   useEffect(() => {
   
     if(!ros) return;
   
-    var askService = new ROSLIB.Service({
+    var ask = new ROSLIB.Action({
       ros: ros,
-      name: '/web_chat/ask_gemma',
-      serviceType: 'simple_server/srv/SetString'
+      name: '/web_chat/chat_ask',
+      actionType: 'simple_server_interfaces/action/ChatAsk'
     })
-    setAskService(askService)
-    askService.callService({data:''}, (result) => {});
-
-    const listener = new ROSLIB.Topic({
-      ros: ros,
-      name: '/web_chat/chunks',
-      messageType: 'std_msgs/String'
-    });
-    listener.subscribe((message) => {
-      const data = JSON.parse(message.data);
-      setLastAnswer((prev) => prev + data.chunk);
-      console.log(data)
-      if (data.done) {
-        setIsStreaming(false);
-      }
-    });
-    setChunkListener(chunkListener)
+    setAskAction(ask)
+    var goal = { question: "" }
+    ask.sendGoal(goal, (a)=>{}, (a)=>{})
   
     return () => {
-      listener.unsubscribe();
     }
     }, [ros]);
 
@@ -86,11 +101,21 @@ export function ChatToBaby({name, onClick, ros}) {
     ])
     setLastAnswer("")
 
-    askService.callService({ data: userMessage }, (result) => {
-      if(! result.success) {
-        setLastAnswer("There has been an error in the answer generation")
+    var goal = { question: userMessage }
+    askAction.sendGoal(goal, 
+      function(result) {
+        setIsStreaming(false);
+        if(! result.success) {
+          setLastAnswer("There has been an error in the answer generation")
+        } else {
+          setLastAnswer(result.full_answer)
+        }
+      },
+      function(feedback) {
+        setLastAnswer((prev) => prev + feedback.partial_answer);
+        console.log('Feedback: ' + feedback.partial_answer);
       }
-    });
+    )
   }
 
   useEffect(
@@ -112,7 +137,7 @@ export function ChatToBaby({name, onClick, ros}) {
               <Message key={message.id} isUser={!isAssistant} padding='md'>
                   {isAssistant ? (
                       message.content !== '' && <MessageContent isUser={!isAssistant}>
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                          <ReactMarkdown components={markdownComponents}>{message.content}</ReactMarkdown>
                       </MessageContent>
                   ) : (
                     <MessageContent isUser={!isAssistant}>
@@ -125,7 +150,7 @@ export function ChatToBaby({name, onClick, ros}) {
           {lastAnswer !== '' && (
             <Message key="streaming" isUser={false} padding='md'>
               <MessageContent isUser={false}>
-                <ReactMarkdown>{lastAnswer}</ReactMarkdown>
+                <ReactMarkdown components={markdownComponents}>{lastAnswer}</ReactMarkdown>
               </MessageContent>
             </Message>
           )}
