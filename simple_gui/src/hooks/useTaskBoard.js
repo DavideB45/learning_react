@@ -15,7 +15,7 @@ export function connectWebSocket(deviceIP, onRetry, setBoardStatus) {
         setBoardStatus("error");
         taskboard_ws.close();
       }
-    }, 5000);
+    }, 3000);
 
     taskboard_ws.onclose = (event) => {
       console.warn("WebSocket closed.", event);
@@ -30,6 +30,7 @@ export function connectWebSocket(deviceIP, onRetry, setBoardStatus) {
 
     taskboard_ws.onopen = (event) => {
       console.log("WebSocket connected to:", deviceIP);
+      didConnect = true;
       setBoardStatus("ready")
     };
     return taskboard_ws;
