@@ -66,7 +66,7 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
 
   useEffect(() => {
     if (!paramClient) return;
-    paramClient.callService({names:['board.list']}, function (result) {
+    paramClient.callService({names:['board.selected_list']}, function (result) {
       setItems(result.values[0].string_array_value)
     });
   }, [paramClient]);

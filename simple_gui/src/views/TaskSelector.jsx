@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { ToastContainer, toast } from "react-toastify";
 
-import { Button } from "@mantine/core";
+import { Button, Checkbox, Container, Group } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 import '../styleList.css'
@@ -20,6 +20,7 @@ function TaskSelector({ ros, paramClient }) {
   const [isReady, setIsReady] = useState(false);
   const [mouse, setMouse] = useState([0, 0]);
   const [dragged, setDragged] = useState(null);
+  const [selected, setSelected] = useState([])
   const [items, setItems] = useState([
     "waiting for Ros" 
   ]);
@@ -42,6 +43,7 @@ function TaskSelector({ ros, paramClient }) {
     if (!paramClient) return;
     paramClient.callService({names:['board.list']}, function (result) {
       setItems(result.values[0].string_array_value)
+      setSelected(Array.apply(null, Array(result.values[0].string_array_value.length)).map(function (x, i) { return false; }))
     });
   }, [paramClient]);
 
@@ -72,6 +74,7 @@ function TaskSelector({ ros, paramClient }) {
         setDragged(null);
 
         setItems((items) => reorderList([...items], dragged, dropZone));
+        setSelected((checks) => reorderList([...selected], dragged, dropZone))
       }
     };
 
@@ -92,9 +95,15 @@ function TaskSelector({ ros, paramClient }) {
           <>
           {dragged !== index && (
             <>
-              <div key={value} className="list-item" onMouseDown={(e) => { e.preventDefault(); setDragged(index); }}>
-                {value}
-              </div>
+                <Group >
+                  <Checkbox checked={selected[index]} onChange={(event) => {
+                    let new_selected = [...selected]
+                    new_selected[index] = event.currentTarget.checked; 
+                    setSelected(new_selected)}}/>
+                  <div key={value} className="list-item" onMouseDown={(e) => { e.preventDefault(); setDragged(index); }}>
+                  {value}
+                  </div>
+                </Group>
               <div className={`list-item drop-zone ${dragged === null || dropZone !== index + 1 ? "hidden" : ""}`} /> {/* drop zone after every item */}
             </>
           )}
@@ -105,7 +114,13 @@ function TaskSelector({ ros, paramClient }) {
       <ToastContainer />
       <SendButton onClick={
         () => {
-          sendList.callService({data: items}, (result) => {
+          let to_send = []
+          for (let i = 0; i < selected.length; i++) {
+            if (selected[i]) {
+              to_send.push(items[i])
+            }
+          }
+          sendList.callService({data: to_send}, (result) => {
             setIsReady(result.success)
             if (result.success)
               toast.success(result.message)

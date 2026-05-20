@@ -16,7 +16,7 @@ function ImageShower({ ros, paramClient, name, onClick }) {
     let imageListener = null;
     if (!paramClient) return;
     paramClient.callService(request, function (result) {
-      console.log('Received parameters: ', result);
+      console.log('Received parameters: ', result.values);
       imageListener = new ROSLIB.Topic({ 
         ros: ros,
         name: result.values[1].string_value,
