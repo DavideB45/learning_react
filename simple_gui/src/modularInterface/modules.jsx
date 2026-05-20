@@ -8,9 +8,10 @@ import ViewButtons from '../components/ViewButtons';
 import Timer from "../components/Timer";
 import CloseButton from "../components/CloseButton";
 import TelemetryPlot from "../components/TelemetryPlot";
+import TitledCounter from "../components/TitledCounter"
 import { ChatToBaby } from "./chat";
 
-const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON']
+const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON', 'BLUE_BUTTON_COUNTER', 'RED_BUTTON_COUNTER']
 //const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
 const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry', 'chat']
 
@@ -67,6 +68,16 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 		default:
 			if(name.includes('telemetry')){
 				var sensor = name.split('+')[1]
+				if(name.includes('COUNTER')){
+					return (
+						<TitledCounter
+							name={sensor.charAt(0) + sensor.substring(1).toLowerCase().replace(/_/g, ' ')}
+							onClick={onClose} 
+							telemetryUpdaters={telemetryUpdaters} 
+							field={sensor}
+						/>
+					)
+				}
 				var min = 0
 				var max = 1
 				if(name.includes('TEMPERATURE')){

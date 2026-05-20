@@ -112,8 +112,25 @@ export function ChatToBaby({name, onClick, ros}) {
         }
       },
       function(feedback) {
-        setLastAnswer((prev) => prev + feedback.partial_answer);
-        console.log('Feedback: ' + feedback.partial_answer);
+        console.log(feedback)
+        if(feedback.split){
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: prev.length + 1,
+              role: "assistant",
+              content: feedback.partial_answer
+            },
+            {
+              id: prev.length + 2,
+              role: "assistant",
+              content: ""
+            }
+          ])
+          setLastAnswer("")
+        } else {
+          setLastAnswer((prev) => prev + feedback.partial_answer);
+        }
       }
     )
   }
