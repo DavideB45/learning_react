@@ -1,169 +1,202 @@
 import { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { ToastContainer, toast } from "react-toastify";
-
-import { Button, Checkbox, Container, Group } from "@mantine/core";
+import { Button, Container, Group, Paper, Text, SimpleGrid, Stack, Title, CloseButton, Center } from "@mantine/core";
 import { Link } from "react-router-dom";
 
-import '../styleList.css'
-
-
-function SendButton( { lable, onClick} ){
-  return (
-    <button onClick={onClick}> {lable} </button>
-  )
-}
-
 function TaskSelector({ ros, paramClient }) {
-  
-  const [dropZone, setDropZone] = useState(0);
+  const [availableTasks, setAvailableTasks] = useState(["waiting for Ros"]);
+  const [executionTasks, setExecutionTasks] = useState([]);
   const [isReady, setIsReady] = useState(false);
-  const [mouse, setMouse] = useState([0, 0]);
-  const [dragged, setDragged] = useState(null);
-  const [selected, setSelected] = useState([])
-  const [items, setItems] = useState([
-    "waiting for Ros" 
-  ]);
-
   const [sendList, setSendList] = useState(null);
 
-  useEffect( () => {
-      if (!ros) return;
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
-      var setListSrv = new ROSLIB.Service({
-        ros: ros,
-        name: '/set_list',
-        serviceType: 'simple_server/srv/SetList'
-      })
-      setSendList(setListSrv)
-    }, [ros]
-  )
+  useEffect(() => {
+    if (!ros) return;
+
+    var setListSrv = new ROSLIB.Service({
+      ros: ros,
+      name: '/set_list',
+      serviceType: 'simple_server/srv/SetList'
+    });
+    setSendList(setListSrv);
+  }, [ros]);
 
   useEffect(() => {
     if (!paramClient) return;
-    paramClient.callService({names:['board.list']}, function (result) {
-      setItems(result.values[0].string_array_value)
-      setSelected(Array.apply(null, Array(result.values[0].string_array_value.length)).map(function (x, i) { return false; }))
+    paramClient.callService({ names: ['board.list'] }, function (result_all) {
+      paramClient.callService({ names: ['board.selected_list'] }, function (result_sel) {
+        setExecutionTasks(result_sel.values[0].string_array_value || []);
+        for (const element of result_sel.values[0].string_array_value) {
+          const index = result_all.values[0].string_array_value.indexOf(element);
+          if (index > -1) {
+            result_all.values[0].string_array_value.splice(index, 1);
+          }
+        }
+        setAvailableTasks(result_all.values[0].string_array_value || []);
+      });
     });
   }, [paramClient]);
 
-  useEffect(() => {
-	// Handle the mouse movemnt
-    const handler = (e) => {
-      setMouse([e.x, e.y]);
-    };
-    document.addEventListener("mousemove", handler);
-    return () => document.removeEventListener("mousemove", handler);
-  }, []);
+  const moveToExecution = (task, index) => {
+    const newAvailable = [...availableTasks];
+    newAvailable.splice(index, 1);
+    setAvailableTasks(newAvailable);
+    setExecutionTasks([...executionTasks, task]);
+  };
 
-  useEffect(() => {
-    if (dragged !== null) {
-		const elements = Array.from(document.getElementsByClassName("drop-zone"));
-		const positions = elements.map((e) => e.getBoundingClientRect().top);
-		const absDifferences = positions.map((v) => Math.abs(v - mouse[1]));
-		let result = absDifferences.indexOf(Math.min(...absDifferences));
-		if (result > dragged) result += 1;
-		setDropZone(result);
-    }
-  }, [dragged, mouse]);
+  const moveToAvailable = (task, index) => {
+    const newExecution = [...executionTasks];
+    newExecution.splice(index, 1);
+    setExecutionTasks(newExecution);
+    setAvailableTasks([...availableTasks, task]);
+  };
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (dragged !== null) {
-        e.preventDefault();
-        setDragged(null);
+  const onDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
 
-        setItems((items) => reorderList([...items], dragged, dropZone));
-        setSelected((checks) => reorderList([...selected], dragged, dropZone))
+  const onDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const onDrop = (e, dropIndex) => {
+    e.preventDefault();
+    setDragOverIndex(null);
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newTasks = [...executionTasks];
+    const draggedTask = newTasks[draggedIndex];
+    
+    newTasks.splice(draggedIndex, 1);
+    const adjustedDropIndex = dropIndex > draggedIndex ? dropIndex - 1 : dropIndex;
+    newTasks.splice(adjustedDropIndex, 0, draggedTask);
+
+    setExecutionTasks(newTasks);
+    setDraggedIndex(null);
+  };
+
+  const handleSendList = () => {
+    if (!sendList) return;
+    
+    sendList.callService({ data: executionTasks }, (result) => {
+      setIsReady(result.success);
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
       }
-    };
-
-    document.addEventListener("mouseup", handler);
-    return () => document.removeEventListener("mouseup", handler);
-  });
+    });
+  };
 
   return (
-	<>
-	  {dragged !== null && (
-      <div className="floating list-item" style={{left: `${mouse[0]}px`, top: `${mouse[1]}px`,}}>
-        {items[dragged]}
-      </div>
-    )}
-    <div className='list'>
-        <div className={`list-item drop-zone ${dragged === null || dropZone !== 0 ? "hidden" : ""}`}/>
-        {items.map((value, index) => (
-          <>
-          {dragged !== index && (
-            <>
-                <Group >
-                  <Checkbox checked={selected[index]} onChange={(event) => {
-                    let new_selected = [...selected]
-                    new_selected[index] = event.currentTarget.checked; 
-                    setSelected(new_selected)}}/>
-                  <div key={value} className="list-item" onMouseDown={(e) => { e.preventDefault(); setDragged(index); }}>
-                  {value}
-                  </div>
+    <Container size="lg" py="xl">
+      <SimpleGrid cols={2} spacing="lg" breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+        
+        {/* Left Column: Available Tasks */}
+        <div>
+          <Title order={3} mb="md">Available Tasks</Title>
+          <Stack gap="sm">
+            {availableTasks.map((task, index) => (
+              <Paper key={`avail-${task}-${index}`} shadow="sm" p="md" withBorder>
+                <Group justify="space-between">
+                  <Text fw={500}>{task}</Text>
+                  <Button variant="light" size="xs" onClick={() => moveToExecution(task, index)}>
+                    Add
+                  </Button>
                 </Group>
-              <div className={`list-item drop-zone ${dragged === null || dropZone !== index + 1 ? "hidden" : ""}`} /> {/* drop zone after every item */}
-            </>
-          )}
-          </>
-        ))}
-    </div>
-    <div>
-      <ToastContainer />
-      <SendButton onClick={
-        () => {
-          let to_send = []
-          for (let i = 0; i < selected.length; i++) {
-            if (selected[i]) {
-              to_send.push(items[i])
-            }
-          }
-          sendList.callService({data: to_send}, (result) => {
-            setIsReady(result.success)
-            if (result.success)
-              toast.success(result.message)
-            else
-              toast.error(result.message)
-          })
-        }
-      } lable={"SendList"}/>
-      <Link to='/executing'>
-      <Button disabled={!isReady}>
-        Start
-      </Button>
-      </Link>
-    </div>
-	</>
+              </Paper>
+            ))}
+            {availableTasks.length === 0 && (
+              <Center p="xl">
+                <Text c="dimmed">No more tasks available</Text>
+              </Center>
+            )}
+          </Stack>
+        </div>
+
+        {/* Right Column: Tasks to Execute */}
+        <div>
+          <Title order={3} mb="md">Tasks to Execute</Title>
+          <Stack gap="sm">
+            {executionTasks.map((task, index) => (
+              <Paper
+                key={`exec-${task}-${index}`}
+                shadow="sm"
+                p="md"
+                withBorder
+                draggable
+                onDragStart={(e) => onDragStart(e, index)}
+                onDragOver={(e) => {
+                  e.preventDefault(); // Required to allow dropping
+                  setDragOverIndex(index); // Continuous firing prevents flickering
+                }}
+                onDrop={(e) => onDrop(e, index)}
+                onDragEnd={onDragEnd}
+                style={{
+                  cursor: 'grab',
+                  opacity: draggedIndex === index ? 0.4 : 1,
+                  // The simple visual indicator:
+                  borderTop: dragOverIndex === index && draggedIndex !== index 
+                    ? '3px solid var(--mantine-color-blue-filled)' 
+                    : undefined,
+                  transition: 'opacity 0.2s ease'
+                }}
+              >
+                <Group justify="space-between">
+                  <Group>
+                    <Text c="dimmed" size="lg" title="Drag to reorder">☰</Text>
+                    <Text fw={500}>{task}</Text>
+                  </Group>
+                  <CloseButton onClick={() => moveToAvailable(task, index)} title="Remove task" />
+                </Group>
+              </Paper>
+            ))}
+
+            {/* Bottom drop zone to move items to the very end */}
+            {executionTasks.length > 0 && (
+              <div
+                onDragOver={(e) => { 
+                  e.preventDefault(); 
+                  setDragOverIndex(executionTasks.length); 
+                }}
+                onDrop={(e) => onDrop(e, executionTasks.length)}
+                style={{ 
+                  height: '20px', 
+                  marginTop: '-8px',
+                  borderTop: dragOverIndex === executionTasks.length && draggedIndex !== executionTasks.length - 1
+                    ? '3px solid var(--mantine-color-blue-filled)' 
+                    : '3px solid transparent'
+                }}
+              />
+            )}
+
+            {executionTasks.length === 0 && (
+              <Center p="xl">
+                <Text c="dimmed">Add tasks from the left panel</Text>
+              </Center>
+            )}
+          </Stack>
+        </div>
+        
+      </SimpleGrid>
+
+      <Group justify="flex-end" mt="xl">
+        <ToastContainer />
+        <Button onClick={handleSendList} variant="outline">
+          Send List
+        </Button>
+        <Button component={Link} to="/executing" disabled={!isReady}>
+          Start
+        </Button>
+      </Group>
+    </Container>
   );
 }
 
-
-
-const reorderList = (l, start, end) => {
-  if (start < end) return _reorderListForward([...l], start, end);
-  else if (start > end) return _reorderListBackward([...l], start, end);
-
-  return l; // if start == end
-};
-
-const _reorderListForward = (l, start, end) => {
-  const temp = l[start];
-  for (let i=start; i<end; i++) {
-    l[i] = l[i+1];
-  }
-  l[end - 1] = temp;
-  return l;
-};
-
-const _reorderListBackward = (l, start, end) => {
-  const temp = l[start];
-  for (let i = start; i > end; i--) {
-    l[i] = l[i - 1];
-  }
-  l[end] = temp;
-  return l;
-};
-
-export default TaskSelector
+export default TaskSelector;
