@@ -28,7 +28,11 @@ function TaskSelector({ ros, paramClient }) {
     if (!paramClient) return;
     paramClient.callService({ names: ['board.list'] }, function (result_all) {
       paramClient.callService({ names: ['board.selected_list'] }, function (result_sel) {
-        setExecutionTasks(result_sel.values[0].string_array_value || []);
+        console.log(result_sel.values[0].string_array_value)
+        if(result_sel.values[0].string_array_value.length == 1 && result_sel.values[0].string_array_value == "")
+          setExecutionTasks([]);  
+        else
+          setExecutionTasks(result_sel.values[0].string_array_value || []);
         for (const element of result_sel.values[0].string_array_value) {
           const index = result_all.values[0].string_array_value.indexOf(element);
           if (index > -1) {

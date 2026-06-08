@@ -63,6 +63,7 @@ export function ChatToBaby({name, onClick, ros}) {
   const [messages, setMessages] = useState([])
   const [isStreaming, setIsStreaming] = useState(false);
   const viewport = useRef(null);
+  const inputRef = useRef(null);
   const [askAction, setAskAction] = useState(null);
 
   useEffect(() => {
@@ -139,6 +140,11 @@ export function ChatToBaby({name, onClick, ros}) {
     () => viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' }),
     [messages, lastAnswer]
   )
+  useEffect(() => {
+    if (!isStreaming) {
+      inputRef.current?.focus();
+    }
+  }, [isStreaming]);
 
   return (
 	<Card
@@ -182,6 +188,7 @@ export function ChatToBaby({name, onClick, ros}) {
           size="lg"
           value={input}
           disabled={isStreaming}
+          ref={inputRef}
           onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
