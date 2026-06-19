@@ -16,7 +16,7 @@ import WaitPage from './views/WaitPage';
 // Functions import
 import { useRos } from "./hooks/useRos";
 import { useTaskBoard } from './hooks/useTaskBoard';
-
+import { useMuRos } from './hooks/useMuRos';
 
 function Navigation( {isRunning, taskboardIP} ) {
   const location = useLocation();
@@ -70,8 +70,10 @@ export default function All() {
 
   const [rosIP, setRosIP] = useState('')
   const [boardIP, setBoardIP] = useState('')
+  const [muRosIP, setMuRosIP] = useState('')
   const { ros, status, paramClient, setViewSrv, retryRos } = useRos(rosIP)
   const { ws, boardStatus, retryBoard } = useTaskBoard(boardIP)
+  const { muRosStatus, retryMuRos } = useMuRos(boardIP, ws, muRosIP)
   const [isRunning, setIsRunning] = useState(false)
   
 
@@ -95,12 +97,18 @@ export default function All() {
         </AppShell.Header>
         <AppShell.Main>
           <Routes>
-            <Route path="/" element={<RobotSetup onRosIP={setRosIP} rosIP={rosIP} onBoardIP={setBoardIP} boardIP={boardIP}/>} />
+            <Route path="/" element={
+              <RobotSetup 
+                onRosIP={setRosIP} rosIP={rosIP} 
+                onBoardIP={setBoardIP} boardIP={boardIP}
+                onMuRosIP={setMuRosIP} muRosIP={muRosIP}
+              />}
+            />
             <Route path="/check" element={
               <WaitPage 
-                rosIP={rosIP} boardIP={boardIP}
-                rosStatus={status} boardStatus={boardStatus}
-                reloadROS={retryRos} reloadBoard={retryBoard}
+                rosIP={rosIP} boardIP={boardIP} muRosIP={muRosIP}
+                rosStatus={status} boardStatus={boardStatus} muRosStatus={muRosStatus}
+                reloadROS={retryRos} reloadBoard={retryBoard} reloadMuRos={retryMuRos}
               />} />
             <Route
               path="/executing"

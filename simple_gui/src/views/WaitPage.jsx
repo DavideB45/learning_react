@@ -39,7 +39,7 @@ function StatusItem({ label, status, onRetry }) {
   );
 }
 
-export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus, reloadROS, reloadBoard }) {
+export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus, muRosIP, muRosStatus, reloadROS, reloadBoard, reloadMuRos }) {
   const [robotStatus, setRobotStatus] = useState("idle");
 
   useEffect(() => {
@@ -63,6 +63,7 @@ export default function WaitPage({ rosIP, rosStatus, boardIP, boardStatus, reloa
 
           <StatusItem label={`ROS (${rosIP || "not set"})`} status={rosStatus} onRetry={reloadROS}/>
           <StatusItem label={`Board (${boardIP || "not set"})`} status={boardStatus} onRetry={reloadBoard}/>
+          <StatusItem label={`MuRos (${muRosIP || "not set"})`} status={muRosStatus} onRetry={reloadMuRos}/>
           <StatusItem label="Robot Connection" status={robotStatus} />
           
           {/* Execute button */}

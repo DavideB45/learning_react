@@ -5,7 +5,7 @@ import { isValidAddress } from "../hooks/useRos"
 
 const API_URL = "http://localhost:3001/api/config";
 
-function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
+function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP, onMuRosIP, muRosIP }) {
   const [robotType, setRobotType] = useState("");
   const [algorithm, setAlgorithm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +23,7 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
           setAlgorithm(config.algorithm || "");
           onRosIP(config.rosIP || "");
           onBoardIP(config.boardIP || "");
+          onMuRosIP(config.muRosIP || "");
         }
       } catch (error) {
         console.log("Could not load configuration:", error);
@@ -39,12 +40,13 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
       if (!isLoading) {
         try {
           if (!algorithm)
-            setAlgorithm('v1')
+            setAlgorithm("v1");
           const config = {
             robotType,
             algorithm,
             rosIP,
             boardIP,
+            muRosIP,
           };
 
           localStorage.setItem("appConfig", JSON.stringify(config));
@@ -54,9 +56,9 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
       }
     }
     saveConfig();
-  }, [robotType, algorithm, rosIP, boardIP, isLoading]);
+  }, [robotType, algorithm, rosIP, boardIP, muRosIP, isLoading]);
 
-  const canExecute = robotType && algorithm && isValidAddress(boardIP, true) && isValidAddress(rosIP) ;
+  const canExecute = robotType && algorithm && isValidAddress(boardIP, true) && isValidAddress(rosIP) && isValidAddress(muRosIP);
 
   if (isLoading) {
     return (
@@ -145,6 +147,19 @@ function RobotSetup({ onRosIP, rosIP, onBoardIP, boardIP }) {
               error={
                 boardIP && !isValidAddress(boardIP, true)
                   ? "Invalid format (expected: host)"
+                  : null
+              }
+            />
+
+            <TextInput
+              label="MuROS Address"
+              placeholder="192.168.1.1:8367"
+              value={muRosIP}
+              onChange={(event) => onMuRosIP(event.currentTarget.value) }
+              size="md"
+              error={
+                muRosIP && !isValidAddress(muRosIP)
+                  ? "Invalid format (expected: host:port)"
                   : null
               }
             />
