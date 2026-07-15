@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GridLayout } from 'react-grid-layout';
@@ -44,6 +44,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
     }
   }
   
+  // send the data from the taskboard to who registered
   useEffect(() => {
     if(!taskboard_ws) return;
     taskboard_ws.onmessage = function(event) {
@@ -61,6 +62,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
     setLayout(layout.filter(item => item.i !== name));
   }
 
+  // resize the window
   React.useEffect(() => {
     const handleResize = () => {
       setWidth(window.innerWidth - 64);
@@ -75,6 +77,18 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
     saveLayout(layout)
   };
 
+  // load the names of the topics for images
+  const [imageNames, setImageNames] = useState([])
+  const [imageType, setImageType] = useState(null)
+  useEffect(() => {
+      if (!paramClient) return;
+      paramClient.callService({ names: ['stream.type', 'stream.names'] }, function (result) {
+        console.log('Received parameters: ', result.values);
+        setImageNames(result.values[1].string_array_value)
+        setImageType(result.values[0].string_value)
+      });
+    }, [paramClient]);
+
   return (
     <div style={{ padding: '16px', width: '100vw', height: '100vh' }}>
       <ToastContainer />
@@ -86,6 +100,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
               name={name} 
               addElement={addElement} 
               layout={layout}
+              imgTopics={imageNames}
             />
           </div>
         ))
@@ -99,7 +114,7 @@ function MainView({ paramClient, setViewSrv, ros, toggleRunning, taskboard_ws })
         layout={layout}
         onLayoutChange={handleLayoutChange}
         cols={12}
-        rowHeight={30}
+        rowHeight={15}
         width={width}
         isDraggable={true}
         isResizable={true}

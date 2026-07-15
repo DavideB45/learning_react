@@ -1,9 +1,9 @@
 import { use, useEffect, useState } from "react"
 
-function setMuIP(address, boardIP){
+async function setMuIP(address, boardIP){
 	const match = address.match(/^(\d{1,3}(?:\.\d{1,3}){3}):(\d{1,5})$/);
 	if (!match) {
-		throw new Error('Address must be in format: 192.168.1.10:9876');
+		return {}
 	}
 	const ip = match[1];
 	const port = match[2];
@@ -31,11 +31,10 @@ export function useMuRos(boardIP, ws, muRosIP) {
 	const connect = () => {
 		if (!muRosIP || !boardIP || !ws) return;
 		ws.onmessage = (event) => {
-			console.log("new message")
 			try {
 				const msg = JSON.parse(event.data);
-				console.log(msg.ws_data_type)
-				if(msg.ws_data_type != "system_status") return
+				if(msg.ws_data_type !== "system_status") return
+				console.log(msg)
 				if (msg.microros.connected) {
 					setMuRosStatus("ready");
 				} else {
@@ -57,14 +56,14 @@ export function useMuRos(boardIP, ws, muRosIP) {
 	};
 
 	useEffect(() => {
+		console.log("handling")
 		if (!ws || !muRosIP) return;
 		console.log("setting handler")
 		ws.onmessage = (event) => {
-			console.log("new message")
 			try {
 				const msg = JSON.parse(event.data);
-				console.log(msg.ws_data_type)
-				if(msg.ws_data_type != "system_status") return
+				console.log(msg)
+				if(msg.ws_data_type !== "system_status") return
 				if (msg.microros.connected) {
 					setMuRosStatus("ready");
 				} else {
