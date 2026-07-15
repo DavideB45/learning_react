@@ -17,8 +17,8 @@ const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'te
 
 
 const defaultLayout = [
-    { x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
-    { x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
+    //{ x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
+    //{ x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
     { x: 0, y: 6, w: 6, h: 2, i: 'boardStatus', static: false, minH:2 },
     { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
     { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
@@ -28,10 +28,14 @@ const defaultLayout = [
 export { all_modules, defaultLayout, getNamedModule}
 
 function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRunning, telemetryUpdaters}) {
+	const match = name.match(/^camera(.+)$/);
+	if (match) {
+		name = 'camera'
+	}
 	switch(name) {
 		case 'camera':
 			return (
-				<ImageShower paramClient={paramClient} ros={ros} name={'Camera Stream'} onClick={onClose}/>
+				<ImageShower paramClient={paramClient} ros={ros} name={'Camera Stream'} onClick={onClose} topic={match[1]} />
 			);
 		case 'cameraButtons':
 			return (
@@ -47,7 +51,7 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 			);
 		case 'boardStatus':
 			return (
-				<BoardStatus ros={ros} paramClient={paramClient} name={'Task Status'} onClick={onClose} />
+				<BoardStatus ros={ros} paramClient={paramClient} name={'Task Status'} onClick={onClose} telemetryUpdaters={telemetryUpdaters}/>
 			)
 		case 'analytics':
 			return (
@@ -103,19 +107,28 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 }
 
 
-export function AddModule({name, addElement, layout}){
+export function AddModule({name, addElement, layout, imgTopics}){
 
-	const [opened, setOpened] = useState(false);
+	const [telemetryOpened, setTelemetryOpened] = useState(false);
 	const [selectedSensor, setSelectedSensor] = useState(null);
+	const [cameraOpened, setCameraOpened] = useState(false);
+	const [selectedCamera, setSelectedCamera] = useState(null)
 
 	const usedSensors = layout
 		.filter(item => item.i.startsWith('telemetry+'))
 		.map(item => item.i.replace('telemetry+', ''));
 	const availableSensors = validSensors.filter(sensor => !usedSensors.includes(sensor));
 
+	const usedCameras = layout
+		.filter(item => item.i.startsWith('camera'))
+		.map(item => item.i.replace('camera', ''));
+	const availableCameras = imgTopics.filter( topic => !usedCameras.includes(topic));
+
 	const handleAddClick = () => {
 		if (name === "telemetry") {
-			setOpened(true);
+			setTelemetryOpened(true);
+		} else if (name === "camera") {
+			setCameraOpened(true);
 		} else {
 			addElement(name);
 		}
@@ -125,7 +138,15 @@ export function AddModule({name, addElement, layout}){
 		if (selectedSensor) {
 			addElement(`telemetry+${selectedSensor}`);
 			setSelectedSensor(null);
-			setOpened(false);
+			setTelemetryOpened(false);
+		}
+	};
+
+	const handleCameraConfirm = () => {
+		if (selectedCamera) {
+			addElement(`camera${selectedCamera}`);
+			setSelectedCamera(null);
+			setCameraOpened(false);
 		}
 	};
 
@@ -139,14 +160,17 @@ export function AddModule({name, addElement, layout}){
 			<Button 
 				onClick={handleAddClick} 
 				fullWidth
-				disabled={name === "telemetry" && availableSensors.length === 0}
+				disabled={
+					(name === "telemetry" && availableSensors.length === 0) ||
+    				(name === "camera" && availableCameras.length === 0)
+				}
 			> 
 				ADD
 			</Button>
 			</Card.Section>
 		</Card>
 
-		<Modal opened={opened} onClose={() => setOpened(false)} title="Select Sensor" centered>
+		<Modal opened={telemetryOpened} onClose={() => setTelemetryOpened(false)} title="Select Sensor" centered>
 			<Select label="Sensor Type" placeholder="Choose a sensor" 
 				data={availableSensors} value={selectedSensor}
 				onChange={setSelectedSensor} searchable clearable
@@ -154,6 +178,15 @@ export function AddModule({name, addElement, layout}){
 			<Button onClick={handleConfirm} fullWidth mt="md" disabled={!selectedSensor} >
 				Confirm
 			</Button>
+		</Modal>
+		<Modal opened={cameraOpened} onClose={() => setCameraOpened(false)} title="Select Camera" centered >
+			<Select label="Camera" placeholder="Choose a camera"
+				data={availableCameras} value={selectedCamera}
+				onChange={setSelectedCamera} searchable clearable
+			/>
+  		<Button mt="md" fullWidth onClick={handleCameraConfirm} disabled={!selectedCamera} >
+    		Confirm
+  		</Button>
 		</Modal>
 		</>
 
