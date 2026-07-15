@@ -14,7 +14,7 @@ function SingleTask( {name, color} ) {
   )
 }
 
-function BoardStatus({ ros, paramClient, name, onClick }) {
+function BoardStatus({ ros, paramClient, name, onClick, telemetryUpdaters }) {
   const [isCompleted, setIsCompleted] = useState(0);
   const taskListenerRef = useRef(null);
   const location = useLocation();
@@ -32,37 +32,6 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
     };
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (!paramClient) return;
-    if (location.pathname !== "/executing") return;
-
-    const request = { names: ['task.type', 'task.name'] };
-    paramClient.callService(request, function (result) {
-      if (taskListenerRef.current) {
-        taskListenerRef.current.unsubscribe();
-      }
-
-      taskListenerRef.current = new ROSLIB.Topic({ 
-        ros: ros,
-        name: result.values[1].string_value,
-        messageType: result.values[0].string_value
-      });
-
-      taskListenerRef.current.subscribe(function (message) {
-        if (message.data > isCompleted) {
-          toast.success("Task "+ items[message.data - 1] + " completed", { icon: "✅", toastId: message.data });
-        }
-        setIsCompleted(message.data);
-      });
-    });
-
-    return () => {
-      if (taskListenerRef.current) {
-        taskListenerRef.current.unsubscribe();
-        taskListenerRef.current = null;
-      }
-    };
-  }, [items, location.pathname, isCompleted]);
 
   useEffect(() => {
     if (!paramClient) return;
@@ -70,6 +39,33 @@ function BoardStatus({ ros, paramClient, name, onClick }) {
       setItems(result.values[0].string_array_value)
     });
   }, [paramClient]);
+
+  useEffect(() => {
+      if (location.pathname !== "/executing") return;
+      const updateDots = (json_data) => {
+        if( json_data['ws_data_type'] != 'task_status') return;
+        let tot_completed = 0;
+        if(!json_data["current_task"]) {
+          tot_completed = items.length
+        } else {
+          for(var i = 0; i < json_data["current_task"]["steps"].length; i++){
+            if(json_data["current_task"]["steps"][i]["done"] == true){
+              tot_completed++
+            }
+          }
+        }
+        if (tot_completed > isCompleted) {
+          toast.success("Task "+ items[tot_completed - 1] + " completed", { icon: "✅", toastId: tot_completed });
+        }
+        setIsCompleted(tot_completed);
+      }
+
+      telemetryUpdaters["taskStat"] = updateDots
+
+      return () => {
+        delete telemetryUpdaters["taskStat"]
+      }
+    }, [telemetryUpdaters, isCompleted, items]);
 
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder style={{ height: '100%' }}>
