@@ -10,16 +10,25 @@ const STATE_STYLES = {
 	critical: { accent: '#E24B4A', value: 'var(--mantine-color-red-7)' },
 };
 
-export default function TitledCounter( { name, field, onClick, telemetryUpdaters, state = 'normal', unit='clicks' } ) {
-	const [lastValue, setLatValue] = useState(0);
-	const { accent, value: valueColor } = STATE_STYLES[ name.startsWith('Red') ? 'critical': state];
+export default function TitledCounter( { name, field, onClick, telemetryUpdaters, state = 'normal', unit='clicks', isbool=false } ) {
+	const [lastValue, setLatValue] = useState('');
+	const [{ accent, value: valueColor }, setColor]= useState(STATE_STYLES[ name.startsWith('Red') ? 'warning': state]);
+	
 	useEffect(() => {
 
 		const updateCounter = (json_data) => {
 			if( json_data['ws_data_type'] != 'taskboard_status') return;
 			for(var i = 0; i < json_data['sensors'].length; i++){
 				if(json_data['sensors'][i].id === field){
-					setLatValue(json_data['sensors'][i].value)
+					if (isbool){
+						if (json_data['sensors'][i].value)
+							setColor(STATE_STYLES[ 'normal'])
+						else
+							setColor(STATE_STYLES[ 'warning'])
+						setLatValue(String(json_data['sensors'][i].value))
+					} else {
+						setLatValue(String(json_data['sensors'][i].value).substring(0, 4))
+					}
 				}
 			}
 		}
@@ -34,7 +43,7 @@ export default function TitledCounter( { name, field, onClick, telemetryUpdaters
 	
 	return (
     <Card shadow="sm" padding={0} radius="md" withBorder style={{ height: '100%', width: '100%', display: 'flex', overflow: 'hidden', }} >
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 12px', minWidth: 0, borderLeft: `4px solid ${accent}` }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 12px', minWidth: 0, borderLeft: `4px solid ${accent}`}}> {/*borderLeft: `4px solid ${accent}`*/}
         {/* header row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <Text size="s" fw={700} tt="capitalize" style={{ letterSpacing: '0.06em' }} truncate >

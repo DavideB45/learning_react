@@ -11,9 +11,9 @@ import TelemetryPlot from "../components/TelemetryPlot";
 import TitledCounter from "../components/TitledCounter"
 import { ChatToBaby } from "./chat";
 
-const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'FADER_BLUE_BUTTON', 'BLUE_BUTTON_COUNTER', 'RED_BUTTON_COUNTER']
+const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE', 'BLUE_BUTTON_COUNTER', 'RED_BUTTON_COUNTER', 'ATTACHED_CABLE'] // 'FADER_BLUE_BUTTON',
 //const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
-const all_modules = [ 'camera', 'cameraButtons', 'boardStatus', 'analytics', 'temperaturePlot', 'timer', 'telemetry', 'chat']
+const all_modules = [ 'camera', 'boardStatus', 'analytics', 'timer', 'telemetry', 'chat'] //'cameraButtons', 'temperaturePlot'
 
 
 const defaultLayout = [
@@ -79,6 +79,30 @@ function getNamedModule({name, ros, paramClient, setViewSrv, onClose, toggleIsRu
 							onClick={onClose} 
 							telemetryUpdaters={telemetryUpdaters} 
 							field={sensor}
+							unit="Clicks"
+						/>
+					)
+				}
+				if(name.includes('ATTACHED_CABLE')){
+					return (
+						<TitledCounter
+							name={sensor.charAt(0) + sensor.substring(1).toLowerCase().replace(/_/g, ' ')}
+							onClick={onClose} 
+							telemetryUpdaters={telemetryUpdaters} 
+							field={sensor}
+							isbool={true}
+							unit=""
+						/>
+					)
+				}
+				if(name.includes('TEMP')){
+					return (
+						<TitledCounter
+							name={sensor.charAt(0) + sensor.substring(1).toLowerCase().replace(/_/g, ' ')}
+							onClick={onClose} 
+							telemetryUpdaters={telemetryUpdaters} 
+							field={sensor}
+							unit="°C"
 						/>
 					)
 				}
