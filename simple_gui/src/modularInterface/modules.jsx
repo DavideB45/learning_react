@@ -15,14 +15,18 @@ const validSensors = ['FADER', 'DOOR_ANGLE', 'PROBE_GOAL_ANALOG', 'TEMPERATURE',
 //const telemetryModules = validSensors.map((sensor) => {return 'telemetry+' + sensor})
 const all_modules = [ 'camera', 'boardStatus', 'analytics', 'timer', 'telemetry', 'chat'] //'cameraButtons', 'temperaturePlot'
 
-
 const defaultLayout = [
-    //{ x: 0, y: 0, w: 6, h: 4, i: 'camera', static: false, isResizable: true },
-    //{ x: 0, y: 4, w: 6, h: 1, i: 'cameraButtons', static: false },
-    { x: 0, y: 6, w: 6, h: 2, i: 'boardStatus', static: false, minH:2 },
-    { x: 6, y: 0, w: 3, h: 3, i: 'analytics', static: false },
-    { x: 6, y: 4, w: 6, h: 3, i: 'temperaturePlot', static: false },
-	{ x: 9, y: 0, w: 3, h: 2, i: 'timer', static: false, minW: 3, maxH:3, minH:2 },
+    {"i":"boardStatus","x":3,"y":3,"w":3,"h":2, "moved":false,"static":false, "minW": 3, "minH":2, "maxW":3, "maxH":4},
+	{"i":"camera/image","x":0,"y":0,"w":3,"h":2,"moved":false,"static":false,"isResizable":true, "minW": 3, "minH":2},
+	{"i":"telemetry+FADER","x":3,"y":0,"w":3,"h":2,"moved":false,"static":false,"isResizable":true},
+	{"i":"telemetry+DOOR_ANGLE","x":9,"y":4,"w":3,"h":2,"moved":false,"static":false,"isResizable":true},
+	{"i":"telemetry+PROBE_GOAL_ANALOG","x":6,"y":4,"w":3,"h":2,"moved":false,"static":false,"isResizable":true},
+	{"i":"telemetry+TEMPERATURE","x":0,"y":3,"w":2,"h":1,"moved":false,"static":false,"isResizable":true, "minW": 2, "minH":1, "maxW":3, "maxH":2},
+	{"i":"telemetry+RED_BUTTON_COUNTER","x":4,"y":2,"w":2,"h":1,"moved":false,"static":false,"isResizable":true, "minW": 2, "minH":1, "maxW":3, "maxH":2},
+	{"i":"telemetry+BLUE_BUTTON_COUNTER","x":0,"y":2,"w":2,"h":1,"moved":false,"static":false,"isResizable":true, "minW": 2, "minH":1, "maxW":3, "maxH":2},
+	{"i":"telemetry+ATTACHED_CABLE","x":2,"y":2,"w":2,"h":1,"moved":false,"static":false,"isResizable":true, "minW": 2, "minH":1, "maxW":3, "maxH":2},
+	{"i":"chat","x":6,"y":0,"w":6,"h":4,"moved":false,"static":false,"isResizable":true},
+	{"i":"timer","x":0,"y":4,"w":3,"h":2,"minW":3,"minH":2,"maxH":3,"moved":false,"static":false}
 ];
 
 export { all_modules, defaultLayout, getNamedModule}
